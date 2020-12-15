@@ -1,0 +1,109 @@
+%% This is an example first chapter.  You should put chapter/appendix that you
+%% write into a separate file, and add a line \include{yourfilename} to
+%% main.tex, where `yourfilename.tex' is the name of the chapter/appendix file.
+%% You can process specific files by typing their names in at the 
+%% \files=
+%% prompt when you run the file main.tex through LaTeX.
+\chapter{Introduction}
+
+Graph mincut is a fundamental structure in graph theory with numerous applications. Let $G=(V,E)$ be an undirected unweighted connected graph on $n=|V|$ vertices and $m=|E|$ edges.
+Two most common types of mincuts are global mincuts and pairwise mincuts. A set of edges with the least cardinality whose removal disconnects the graph is called a global mincut. For any pair of vertices $s,t\in V$, 
+a set of edges with the least cardinality whose removal disconnects $t$ from $s$ is called a pairwise mincut for $s,t$ or simply a $(s,t)$-mincut. A more general notion is that of Steiner mincuts. For any given set $S\subseteq V$ of vertices, a set of edges with the least cardinality whose removal disconnects $S$ is called a Steiner mincut for $S$. It is easy to observe that the Steiner mincuts for $S=V$ are the global mincuts and for $S=\{s,t\}$ are $(s,t)$-mincuts.
+
+While designing an algorithm for a graph problem, one usually assumes that the underlying graph is static. But, this assumption is unrealistic for most of the real-world graphs where vertices and/or edges do fail, though occasionally. While it is impractical to assume that a real-world graph is immune to such failures, it is also a fact that these failures are transient - an edge (or a vertex) once failed, becomes active after some time due to the simultaneous repair mechanism that is undertaken in most of the real-world graphs. So the set of failed edges (or vertices), though small in size, keeps changing with time. Therefore, a more realistic way to model a real-world graph is to assume that, at any time, there will be at most $k$ failed vertices or edges for some $k$ defined suitably. Solving a graph problem in this model requires building a compact data structure such that given any set of at most $k$ failed vertices or edges, the solution of the problem can be reported efficiently.
+
+In the past, many elegant fault-tolerant algorithms have been designed for various classical problems, namely,  connectivity \cite{DBLP:conf/stoc/Chan02,DBLP:journals/algorithmica/FrigioniI00,DBLP:journals/siamcomp/ChanPR11,DBLP:conf/soda/DuanP17}, shortest-paths \cite{DBLP:conf/stoc/BernsteinK09,DBLP:journals/siamcomp/DemetrescuTCR08,DBLP:conf/stoc/ChechikC20}, graph spanners \cite{ChechikLPR10,DBLP:journals/tcs/BraunschvigCPS15}, SCC \cite{DBLP:journals/algorithmica/BaswanaCR19} , DFS tree \cite{DBLP:journals/siamcomp/BaswanaCC019}, and BFS structure \cite{DBLP:journals/talg/ParterP16,DBLP:journals/talg/ParterP18}. However, little is known about fault-tolerant data structures for various types of mincuts. The problem of fault-tolerant all-pairs mincuts aims at preprocessing a given graph to build a compact data structure so that the following query can be answered efficiently for any $s,t\in V$ and $(x,y)\in E$.\\
+
+% \noindent
+% FT-mincut$(u,v,x,y)$: Report the value of $(u,v)$-mincut in $G$ after the failure/removal of edge $(x,y)$, if exists, from $E$.\\
+
+\noindent
+% {\textsc{ft-mincut}}$(s,t,x,y)$: Report a $(s,t)$-mincut in $G$ after the failure of edge $(x,y)$, if exists, from $E$.\\
+{\textsc{ft-mincut}}$(s,t,x,y)$: Report a $(s,t)$-mincut in $G$ after the failure of edge $(x,y)$.\\
+
+
+Upon failure of edge $(x,y)$, the value of $(s,t)$-mincut for any $s,t\in V$ either decreases by unity or remains unchanged. We now state the necessary and sufficient condition for the value of $(s,t)$-mincut to decrease upon failure of edge $(x,y)$.
+
+\begin{fact}
+\label{fact:(x,y)-lies-in-(s,t)-mincut}
+The value of $(s,t)$-mincut decreases on failure of an edge $(x,y)$ if and only if $(x,y)$ lies in \textit{some} $(s,t)$-mincut.
+\end{fact}
+
+It follows from Fact \ref{fact:(x,y)-lies-in-(s,t)-mincut} that any {\textsc{ft-mincut}}($s,t,x,y$) query can be answered by determining whether $(x,y)$ belongs to any $(s,t)$-mincut. Unfortunately, there can be exponential number of $(s,t)$-mincuts in a given graph \cite{DBLP:journals/mp/PicardQ82}. Thus, designing a compact data structure to answer this query efficiently turns out to be a challenging task.
+
+\section{Previous Results} 
+
+
+There exists a classical ${\cal O}(n)$ size data structure that stores all-pairs mincuts \cite{GH61} known as Gomory-Hu tree. It is a tree on the vertex set $V$ that compactly stores a mincut between each pair of vertices. However, we cannot determine using a Gomory-Hu tree whether the failure of an edge will affect the $(s,t)$-mincut unless this edge belongs to the $(s,t)$-mincut present in the tree. We can get a fault-tolerant data structure by storing $m$ Gomory-Hu trees, one for each edge failure. The overall data structure occupies ${\cal O}(mn)$ space and takes ${\cal O}(1)$ time to report the value of $(s,t)$-mincut for any $s,t\in V$ upon failure of a given edge. However, the ${\cal O}(mn)$ space occupied by this data structure is far from the size of the graph. To the best of our knowledge, there exists no data structure for this problem which takes $o(mn)$ space and a non-trivial query time.
+
+
+
+\section{Our Contribution} We present two space efficient fault-tolerant data structures for the all-pairs mincuts problem in an undirected unweighted graph.
+
+\begin{enumerate}
+    \item 
+Our first data structure occupies ${\cal O}(n^2)$ space while achieving the optimal ${\cal O}(1)$ query time to report the value of $(s,t)$-mincut for any $s,t\in V$ upon failure of any given edge. However, the size of this data structure is still impractical for large real-world graphs which are usually sparse. So it is natural to ask whether we can have a more compact data structure at the expense of increased query time. Our second data structure answers this question in affirmative.
+
+    \item
+Our second data structure occupies ${\cal O}(m)$ space which matches the space required to store the given graph.
+% and is indeed optimal (Lemma \ref{lem:lower-bound})
+The query time to report the value of $(s,t)$-mincut for any $s,t\in V$ upon failure of any given edge is ${\cal O}(\min(m,nc_{s,t}))$ where $c_{s,t}$ is the value of $(s,t)$-mincut in graph $G$. The query time guaranteed by our data structure is faster by a factor of $\Omega(\sqrt{n})$ compared to the best known algorithm \cite{DBLP:conf/focs/GoldbergR97a,DBLP:conf/stoc/KargerL98} to compute a $(s,t)$-mincut.
+
+\end{enumerate}
+Both these data structures can also report the resulting $(s,t)$-mincut incorporating the failure in ${\cal O}(\min(m,n c_{s,t}))$ time.
+In order to design our data structures, we present an efficient solution for a related problem of independent interest, called edge-containment query on a mincut defined as follows.\\
+
+\noindent
+{\textsc{edge-contained}}$(s,t,E_y)$: Check if a given set of edges $E_y\subset E$ sharing a common endpoint $y$ belong to some $(s,t)$-mincut.\\
+
+Using a data structure for this problem, we can answer a fault-tolerant query upon failure of edge $(x,y)$ as follows. We perform the corresponding edge-containment query for $E_y = \{(x,y)\}$. The value of $(s,t)$-mincut will reduce by unity if the edge-containment query evaluates to true. We can keep a Gomory-Hu tree of ${\cal O}(n)$ size as an auxiliary data structure to lookup the old value of $c_{s,t}$. Our first data structure can answer edge-containment queries for $|E_y|=1$ in  ${\cal O}(1)$ time. On the other hand, our second data structure works for any given set $E_y$ but takes ${\cal O}(\min(m,nc_{s,t}))$ time. 
+
+
+\begin{remark}
+It is worthwhile to note that edge-containment queries cannot be extended to handle more than one edge failure. This is because Fact \ref{fact:(x,y)-lies-in-(s,t)-mincut} doesn't hold for multiple edges failures.
+\end{remark}
+
+
+
+
+\section{Related Work} 
+A related problem is that of maintaining mincuts in a dynamic environment. Until recently, most of the work on this problem has been limited to global mincuts. Thorup \cite{DBLP:journals/combinatorica/Thorup07} gave a Monte-Carlo algorithm for maintaining a global mincut of polylogarithmic size with ${\tilde {\cal O}}(\sqrt{n})$ update time.  He also showed how to maintain a global mincut of arbitrary size with $1+o(1)$-approximation within the same time-bound. Goranci, Henzinger and Thorup \cite{DBLP:journals/talg/GoranciHT18} gave a deterministic incremental algorithm for maintaining a global mincut with amortized ${\tilde{\cal O}}(1)$ update time and ${\cal O}(1)$ query time. Hartmann and Wagner \cite{DBLP:conf/isaac/HartmannW12} designed a fully dynamic algorithm for maintaining all-pairs mincuts  which provided significant speedup in many real-world graphs, however, its worst-case asymptotic time complexity is not better than the best static algorithm for an all-pairs mincut tree. Recently, there is a fully-dynamic algorithm \cite{DBLP:journals/corr/abs-2005-02368} that approximates all-pairs mincuts up to a nearly logarithmic factor in ${\tilde{\cal O}}(n^{2/3} )$ amortized time against an oblivious adversary, and ${\tilde{\cal O}}(m^{3/4} )$ time against an adaptive adversary. To the best of our knowledge, there exists no non-trivial dynamic algorithm for all-pairs \textit{exact} mincut. We feel that our insights in this paper may be helpful in this problem.
+
+\noindent
+
+
+\section{Overview of our results} 
+
+Dinitz and Vainshtein \cite{DBLP:journals/siamcomp/DinitzV00}
+presented a novel data structure called {\em connectivity carcass} that stores all Steiner mincuts for a given Steiner set $S\subseteq V$ in ${\cal O}(\min(m,nc_S))$ space, where $c_S$ is the value of Steiner mincut. %We observe that this data structure can be used easily to design a fault-tolerant data structure for all-pairs mincuts that occupies $O(mn)$-space. 
+Katz, Katz, Korman and Peleg \cite{DBLP:journals/siamcomp/KatzKKP04} presented a data structure of ${\cal O}(n)$ size for labeling scheme of all-pairs mincuts. This structure hierarchically partitions the vertices based on their connectivity in the form of a rooted tree. In this tree, each leaf node is a vertex in set $V$ and each internal node $\nu$ stores the Steiner mincut value of the set $S(\nu)$ of leaf nodes in the subtree rooted at $\nu$. %stores all-pairs mincut value.
+% Apparently, both these data structures seem to be designed for a static graph. 
+We observe that if each internal node $\nu$ of the hierarchy tree
+is augmented with the connectivity carcass of $S(\nu)$, we get a data structure for the edge-containment query. This data structure occupies ${\cal O}(mn)$ space. An edge-containment query can be answered using the connectivity carcass at the Lowest Common Ancestor (LCA) of the given pair of vertices.
+%following, more generic, fault-tolerant query :
+
+As we move down the hierarchy tree, the size of Steiner set associated with the internal node reduces. So, to make the data structure more compact, a possible approach is to associate a smaller graph $G_\nu$ for each internal node $\nu$ that is {\em small enough} to improve the overall space-bound, yet {\em large enough} to retain the internal connectivity of set $S(\nu)$. 
+However, such a compact graph cannot directly answer the edge-containment query as it does not even contain the information about all edges in $G$. A possible way to overcome this challenge is to transform any edge-containment query in graph $G$ to an equivalent query in graph $G_{\nu}$. In this paper, we show that not only such a transformation exists, but it can also be computed efficiently. We model the query transformation as a multi-step procedure. The following result captures a single step of this procedure.
+
+% The key observation that allows us to do query transformation is as follows. 
+Given an undirected graph $G=(V,E)$ and a Steiner set $S\subseteq V$, let $S'\subset S$ be any maximal set with connectivity strictly greater than that of $S$. We can build a quotient graph $G_{S'}=(V_{S'},E_{S'})$ such that $S' \subset V_{S'}$ with the following property.
+
+{\em
+For any two vertices $s,t \in S'$ and any set of edges $E_y$ incident on vertex $y$ in $G$, there exists a set of edges $E_{y'}$ incident on a vertex $y'$ in $G_{S'}$ such that $E_y$ lies in a $(s,t)$-mincut in $G$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_{S'}$. 
+}
+
+We build graph $G_\mu$ associated with each internal node $\mu$ of the hierarchy tree as follows. For the root node $r$, $G_r = G$. For any other internal node $\mu$, we use the above result to build the graph $G_{\mu}$ from $G_{\mu'}$, where $\mu'$ is the parent of $\mu$. 
+Our data-structure is the hierarchy tree where each internal node $\mu$ is augmented with the connectivity carcass for $G_\mu$ and the Steiner set $S(\mu)$. A high-level description of our query algorithm is as follows. 
+% We move from the root node to the LCA of $s$ and $t$.
+We traverse the path from the root node to the LCA of $s$ and $t$.
+% We keep transforming an edge-containment query for each edge in this path. 
+We keep transforming the edge-containment query for each edge in this path.
+At the LCA of $s$ and $t$, we stop and perform the query using the connectivity carcass 
+% augmented at this node
+stored at this node.
+Following a rigorous analysis, we show that this data structure takes only ${\cal O}(m)$ space and can answer any edge-containment query in ${\cal O}(\min(m,nc_{s,t}))$ time.
+
+% \section{Organization of the paper:}
+
+% In addition to the basic notations, Section \ref{sec:prelimiaries} presents compact representation for various mincuts. Section \ref{sec:query-transformation} gives insights into $3$-vertex mincuts that form the foundation for transforming an edge-containment query in original graph to a compact graph. We give the construction of compact graph for query transformation in Section \ref{sec:compact-graph-section}.
+% Using this compact graph as a building block, we present the data structures for edge-containment query in Section \ref{sec:final-ds}.

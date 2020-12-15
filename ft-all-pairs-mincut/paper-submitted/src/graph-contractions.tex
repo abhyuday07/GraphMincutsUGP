@@ -1,0 +1,84 @@
+We describe first a hierarchical data structure of Katz, Katz, Korman and Peleg \cite{DBLP:journals/siamcomp/KatzKKP04}
+that was used for compact labeling scheme for all-pairs mincuts. This hierarchical data structure is actually a rooted tree, denoted by ${\cal T}_G$ henceforth. 
+The key insight on which this tree is built is an equivalence relation defined for a Steiner set $S\subseteq V$ as follows.
+
+
+\begin{definition}[Relation ${\cal R}_S$]
+Any two vertices $a,b\in S$ are said to be related by ${\cal R}_S$, that is $(a,b)\in {\cal R}_S$, if
+$c_{a,b}>c_S$, where $c_S$ is the value of a Steiner mincut of $S$.
+\end{definition}
+
+% \noindent
+% The fact that ${\cal R}_S$ is an equivalence relation defined over $S$ can be easily derived using Lemma \ref{lem:triangle-inequality}.
+% It can be observed that for any vertex $x\in S$, the equivalence class $[x]$ defined by ${\cal R}_S$ consists of all those vertices $y\in S$ such that the value of $(x,y)$-mincut is strictly greater than $c_S$. 
+
+
+By using ${\cal R}_S$ for various carefully chosen instances of $S$, we can build the tree structure ${\cal T}_G$ in a top-down manner as follows. Each node $\nu$ of the tree will be associated with a Steiner set, denoted by $S(\nu)$, and the equivalence relation ${\cal R}_{S(\nu)}$. To begin with, for the root node $r$, we associate $S(r)=V$.
+Using ${\cal  R}_{S(\nu)}$, we partition $S(\nu)$ into equivalence classes. For each equivalence class, we create a unique child node of $\nu$; the Steiner set associated with this child will be the corresponding equivalence class. We process the children of $\nu$ recursively along the same lines. We stop when the corresponding Steiner set is a single vertex. 
+
+It follows from the construction described above that the tree ${\cal T}_G$ will have $n$ leaves - each corresponding to a vertex of $G$. The size of ${\cal T}_G$ will be $O(n)$ since each internal node has at least 2 children. Notice that $S(\nu)$ is the set of vertices present at the leaf nodes of the subtree of ${\cal T}_G$ rooted at $\nu$. The following observation captures the relationship between a parent and child node in 
+${\cal T}_G$.
+
+\begin{observation}
+\label{obs:maximal-subset-subtree}
+Suppose $\nu \in {\cal T}_G$ and $\mu$ is its parent. $S(\nu)$ comprises of a maximal subset of vertices in $S(\mu)$ with connectivity strictly greater than that of $S(\mu)$.
+\end{observation}
+
+The following observation conveys an important property about the value of $(s,t)$-mincut for any two vertices $s,t\in V$.
+
+\begin{observation}
+\label{obs:(s,t)-mincut-lca}
+Suppose $s,t \in V$ are two vertices and $\mu$ is their LCA in ${\cal T}_G$ then $c_{s,t}=c_{S(\mu)}$.
+\end{observation}
+
+
+
+${\cal T}_G$ can be augmented to design a data structure for edge-containment query for any pair of vertices. For a single-edge-containment query, we get the following result (Details in Appendix \ref{appendix:n2-ds}).
+
+\begin{theorem}
+ Given an undirected graph $G=(V,E)$ on $n=|V|$ vertices, there exists a data structure of 
+ ${\cal O}(n^2)$ size that takes ${\cal O}(1)$ time to determine whether an edge $(x,y)\in E$
+ belongs to a $(s,t)$-mincut for any $s,t\in V$
+ and $(x,y)\in E$.
+ \label{thm:O(n^2)-size-data-structure}
+ \end{theorem}
+
+In the following section we present our ${\cal O}(m)$ size data structure which is more compact and can even handle multiple-edge-containment query.
+
+
+\subsection{An \texorpdfstring{${\cal O}(m)$}{O(m)} size data structure}
+
+Consider any node $\mu$ in ${\cal T}_G$. We associate a compact graph with node $\mu$, say $G_\mu=(V_\mu,E_\mu)$ with the following properties. 
+
+\begin{enumerate}
+    \item $G_\mu$ is a quotient graph of $G$ with $S(\mu)\subseteq V_\mu$
+    \item  For each $s,t\in S(\mu)$ and a set of edges $E_y$ incident on vertex $y\in V$, there exists a set of edges $E_{y'}$ incident on vertex $y'\in V_\mu$ such that $E_y$ lies in a $(s,t)$-mincut in $G$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_\mu$.
+\end{enumerate}
+
+For the root node $r$, $G_r=G$ and the two properties hold trivially.
+We traverse ${\cal T}_G$ in a top down fashion to construct $G_\mu$ for each node $\mu \in {\cal T}_G$ as follows. Let $\mu$ be the parent of $\mu'$ in ${\cal T}_G$. Assume we have graph $G_{\mu}$ already built with the properties mentioned above. Thus, $S(\mu)\subseteq V_\mu$. Using Observation \ref{obs:maximal-subset-subtree} we know that $S(\mu')$ is a maximal subset of $S(\mu)$ with connectivity strictly greater than that of $S(\mu)$. Using Theorem \ref{thm:edge-correspondence} with $S=S(\mu)$ and $S'=S(\mu')$, it can be shown that there exists a graph $G_{S(\mu')}$ 
+% such that -- for each $s,t \in S(\nu)$ and set of edges $E_y$ incident on vertex $y\in V_{\mu}$ there exists a set of edges $E_{y'}$ incident on vertex $y'\in V_\nu$ such that $E_y$ lies in a $(s,t)$-mincut in $G_\mu$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_\nu$. This also implies that the above $2$ properties will hold for $G_\nu$.
+that satisfies both the properties above. We define $G_{\mu'}$ to be $G_{S(\mu')}$.
+The graph $G_{\mu'}$ itself
+can be obtained using the $2$-step contraction procedure described in Section \ref{sec:compact-graph}.
+
+
+% We use Property 1 and Observation \ref{obs:maximal-subset-subtree} to build the graph $G_\nu$ for the subset $S(\nu)$ from $G_\mu$ following the procedure described in Section \ref{sec:compact-graph}. Using Theorem \ref{thm:edge-correspondence}, it follows that $G_\nu$ also satisfies Property 2.
+
+Our compact data structure will be ${\cal T}_G$ where each node $\mu$ will be augmented with the connectivity carcass of $S(\mu)$ in graph $G_\mu$. 
+
+\subsubsection*{The query algorithm}
+
+A query \textsc{edge-contained}$(s,t,E_y)$ can be answered by the data structure as follows. We start from the root node of ${\cal T}_G$ and traverse the path to the node $\nu$ which is the LCA of $s$ and $t$. Consider any edge $(\mu,\mu')$ on this path, where $\mu$ is parent of $\mu'$. We modify the query \textsc{edge-contained}$(s,t,E_y)$ in $G_{\mu}$ to an equivalent query \textsc{edge-contained}$(s,t,E_{y'})$ in $G_{\mu'}$ as we move to $\mu'$ (see Theorem \ref{thm:edge-correspondence}). This computation can be carried out in time linear in size of flesh at node $\mu$ using Lemma \ref{lem:linear-time-qt}. We stop when $\mu = \nu$. Observe that $c_{s,t} = c_{S(\nu)}$ (using Observation \ref{obs:(s,t)-mincut-lca}) and thus must be separated by some Steiner mincut for $S(\nu)$.
+Thus we compute the strip ${\cal D}_{s,t}$ at node $\nu$ and answer the edge-containment query using Lemma \ref{lem:E_y-edges-same-side}. If the query evaluates to true, we compute a $(s,t)$-mincut in $G_\nu$ using ${\cal D}_{s,t}$ that contains the required set of edges at this level. We retrace the path from $\nu$ to the root of ${\cal T}_G$.
+% A $(s,t)$-mincut containing the edges in $E_y$ can be obtained as follows. We start from the LCA of $s$ and $t$ in ${\cal T}_G$, say $\nu$. We construct the strip ${\cal D}_{s,t}$ and obtain a $(s,t)$-mincut that contains the required set of edges. We traverse the path from $\nu$ to the root of ${\cal T}_G$.
+Consider any edge $(\mu,\mu')$ on this path where $\mu$ is parent of $\mu'$. We find a corresponding $(s,t)$-mincut in graph $G_\mu$ from the $(s,t)$-mincut of $G_{\mu'}$ using Lemma \ref{lem:mincut-qt}. We stop at the root node and report the set of vertices defining the $(s,t)$-mincut in $G$.
+We can thus state the following theorem.
+
+\begin{theorem}
+Given an undirected graph $G=(V,E)$ on $n=|V|$ vertices and $m=|E|$ edges, there exists a data structure of ${\cal O}(m)$ size that can determine whether any given subset of edges $E_y$ incident on vertex $y$ belongs to a $(s,t)$-mincut for any $s,t,y\in V$ and report the same if exists. The time taken to answer this query is ${\cal O}(\min(m,nc_{s,t}))$.
+\label{thm:O(m)-size-data-structure}
+\end{theorem}
+
+The detailed analysis of size and query time of the data structure stated in Theorem \ref{thm:O(m)-size-data-structure} is given in Appendix \ref{appendix:size-time-analysis-compact-ds}.
+%Consider the root node of the hierarchy tree ${\cal T}_G$. This node is augmented with the Connectivity Carcass corresponding to $S=V$. Let $\nu$ be a child of the root node. Observe that all leaf vertices in the subtree ${\cal T}_G(\nu)$ must be mapped to a single node in the skeleton (say $\nu$) at root level. Thus, for any internal node in the subtree ${\cal T}_G(\nu)$ we can simply manage to augment it with Connectivity Carcass corresponding to graph $G_\nu$ instead of $G$. However, this optimization alone cannot help getting an ${\cal O}(m)$ size data structure. We establish that the notion of compact graph and query transformation also hold for any Steiner set $S\subseteq V$. Thus, the working graph becomes smaller as we move down the hierarchy tree.

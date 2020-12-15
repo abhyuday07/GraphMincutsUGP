@@ -1,0 +1,231 @@
+\chapter{Compact Data Structures for Edge-Containment Queries}
+
+We describe first a hierarchical data structure of Katz, Katz, Korman and Peleg \cite{DBLP:journals/siamcomp/KatzKKP04}
+that was used for compact labeling scheme for all-pairs mincuts. This hierarchical data structure is actually a rooted tree, denoted by ${\cal T}_G$ henceforth. 
+The key insight on which this tree is built is an equivalence relation defined for a Steiner set $S\subseteq V$ as follows.
+
+
+\begin{definition}[Relation ${\cal R}_S$]
+Any two vertices $a,b\in S$ are said to be related by ${\cal R}_S$, that is $(a,b)\in {\cal R}_S$, if
+$c_{a,b}>c_S$, where $c_S$ is the value of a Steiner mincut of $S$.
+\end{definition}
+
+% \noindent
+% The fact that ${\cal R}_S$ is an equivalence relation defined over $S$ can be easily derived using Lemma \ref{lem:triangle-inequality}.
+% It can be observed that for any vertex $x\in S$, the equivalence class $[x]$ defined by ${\cal R}_S$ consists of all those vertices $y\in S$ such that the value of $(x,y)$-mincut is strictly greater than $c_S$. 
+
+
+By using ${\cal R}_S$ for various carefully chosen instances of $S$, we can build the tree structure ${\cal T}_G$ in a top-down manner as follows. Each node $\nu$ of the tree will be associated with a Steiner set, denoted by $S(\nu)$, and the equivalence relation ${\cal R}_{S(\nu)}$. To begin with, for the root node $r$, we associate $S(r)=V$.
+Using ${\cal  R}_{S(\nu)}$, we partition $S(\nu)$ into equivalence classes. For each equivalence class, we create a unique child node of $\nu$; the Steiner set associated with this child will be the corresponding equivalence class. We process the children of $\nu$ recursively along the same lines. We stop when the corresponding Steiner set is a single vertex. 
+
+It follows from the construction described above that the tree ${\cal T}_G$ will have $n$ leaves - each corresponding to a vertex of $G$. The size of ${\cal T}_G$ will be $O(n)$ since each internal node has at least 2 children. Notice that $S(\nu)$ is the set of vertices present at the leaf nodes of the subtree of ${\cal T}_G$ rooted at $\nu$. The following observation captures the relationship between a parent and child node in 
+${\cal T}_G$.
+
+\begin{observation}
+\label{obs:maximal-subset-subtree}
+Suppose $\nu \in {\cal T}_G$ and $\mu$ is its parent. $S(\nu)$ comprises of a maximal subset of vertices in $S(\mu)$ with connectivity strictly greater than that of $S(\mu)$.
+\end{observation}
+
+The following observation conveys an important property about the value of $(s,t)$-mincut for any two vertices $s,t\in V$.
+
+\begin{observation}
+\label{obs:(s,t)-mincut-lca}
+Suppose $s,t \in V$ are two vertices and $\mu$ is their LCA in ${\cal T}_G$ then $c_{s,t}=c_{S(\mu)}$.
+\end{observation}
+
+
+
+${\cal T}_G$ can be augmented to design a data structure for edge-containment query for any pair of vertices. For a single-edge-containment query, we get the following result.
+
+\section{\texorpdfstring{An ${\cal O}(n^2)$}{A quadratic space} data structure for single edge-containment queries} \label{appendix:n2-ds}
+
+% We build our ${\cal O}(n^2)$ data structure by augmenting each internal node $\nu$ of hierarchy tree ${\cal T}_G$ with the skeleton ${\cal H}_{S(\nu)}$ and projection mapping $\pi_{S(\nu)}$.
+
+% Let $s,t$ be any two vertices such that $\nu$ is their LCA in ${\cal T}_G$. $s$ and $t$ must belong to different nodes in the the skeleton ${\cal H}_{S(\nu)}$ stored at $\nu$. Interestingly, the skeleton ${\cal H}_{S(\nu)}$ and the corresponding projection mapping $\pi_{S(\nu)}$ have sufficient information to infer whether any edge $(x,y)\in E$ belongs to some $(s,t)$-mincut. 
+Suppose $S$ is a designated Steiner set and $s,t\in S$ are Steiner vertices separated by some Steiner mincut. We can determine if an edge $(x,y)\in E$ belongs to some $(s,t)$-mincut using the strip ${\cal D}_{s,t}$ that can be built from the connectivity carcass. However, the construction of strip requires ${\cal O}(\min(m,nc_S))$ time. Interestingly, we show that only the skeleton and the projection mapping of the connectivity carcass are sufficient for answering this query in constant time. Moreover, the skeleton and the projection mapping occupy only ${\cal O}(n)$ space compared to the ${\cal O}(\min(m,nc_S))$ space occupied by the entire connectivity carcass.
+
+
+Similar to the projection mapping of the stretched units, Dinitz and Vainshtein \cite{DBLP:journals/siamcomp/DinitzV00} introduced the notion of projection mapping for edges as follows. Suppose $(x,y)\in E$. If $x$ and $y$ belong to the same unit, then $P(x,y) = \varnothing$. If $x$ and $y$ belong to distinct terminal units mapped to nodes, say $\nu_1$ and $\nu_2$, in the skeleton ${\cal H}_S$, then $P(x,y) = P(\nu_1,\nu_2)$. If at least one of them belongs to a stretched unit, $P(x,y)$ is the extended path defined in Lemma \ref{lem:path-extendable}. This allows us to state the following lemma which follows from the construction of a strip corresponding to a subbunch given in Section \ref{subsec:connectivity-carcass}.
+
+\begin{lemma}[\cite{DBLP:conf/stoc/DinitzV94}]
+Edge $(x,y)\in E$ appears in the strip corresponding to a subbunch if and only if one of the structural edge in the cut of ${\cal H}_S$ corresponding to this subbunch lies in $P(x,y)$.
+\label{lem:edge-path-intersect-subbunch}
+\end{lemma}
+
+We state the necessary and sufficient condition for an edge $(x,y)$ to lie in an $(s,t)$-mincut. Note that two paths are said to intersect in the skeleton if the unique path of cycle and tree edges in both the paths intersect at some cycle or tree edge.
+% The skeleton ${\cal H}_{S(\nu)}$ and the corresponding projection mapping $\pi_{S(\nu)}$ have the sufficient information to infer whether any edge $(x,y)\in E$ belongs to some $(s,t)$-mincut as stated by the following lemma. We say that two paths intersect if the unique path of cycle and tree edges in both the paths intersect at some cycle or tree edge.
+
+\begin{lemma} \label{lem:path-intersects-tree}
+ Edge $(x,y)\in E$ belongs to a $(s,t)$-mincut if and only if the proper path $P(x,y)$ intersects a path between the nodes containing $s$ and $t$ in in $\mathcal H_{S}$.
+\end{lemma}
+\begin{proof}
+Observe that an edge $(x,y)$ lies in a $(s,t)$-mincut if and only if it appears in the strip ${\cal D}_{s,t}$ (follows from Lemma \ref{lem:E_y-edges-same-side}). Infact, we can extend this notion for subbunch as well. The edge $(x,y)$ lies in some $(s,t)$-mincut if and only if it appears in the strip corresponding to some subbunch that separates $s$ from $t$.
+
+Consider each subbunch that separates $s$ from $t$. Let $\nu_1$ and $\nu_2$ be the nodes in ${\cal H}_S$ containing $s$ and $t$ respectively. A cut in ${\cal H}_S$ corresponding to any tree-edge (or pair of cycle edges in same cycle) in the path from $\nu_1$ to $\nu_2$ defines a subbunch separating $s$ from $t$. Moreover, it follows from the structure of the skeleton that no other cut in the skeleton corresponds to a subbunch separating $s$ from $t$. 
+
+Suppose $(x,y)$ lies in some $(s,t)$-mincut. Thus, it must be in some subbunch separating $s$ from $t$. From the above discussion, we know that this subbunch must correspond to a cut in the path from $\nu_1$ to $\nu_2$ in skeleton ${\cal H}_S$. Moreover, it follows from Lemma \ref{lem:edge-path-intersect-subbunch} that $P(x,y)$ contains one of the structural edge in this cut. This implies that $P(x,y)$ intersects the path from $\nu_1$ to $\nu_2$ in skeleton ${\cal H}_S$.
+
+Now, consider the other direction of this proof. Suppose $P(x,y)$ and the path from $\nu_1$ to $\nu_2$ intersect at some cycle (or tree edge) $c$. Let $e_1$ and $e_2$ be structural edges belonging to the cycle $c$ that are part of $P(x,y)$ and path from $\nu_1$ to $\nu_2$ respectively (in the case of tree edge $e_1=e_2=c$). Consider the cut in the skeleton corresponding to structural edges $e_1$ and $e_2$. It follows from Lemma \ref{lem:edge-path-intersect-subbunch} that $(x,y)$ lies in the strip corresponding to this subbunch. Since this cut separates $\nu_1$ from $\nu_2$ in ${\cal H}_S$, therefore the subbunch separates $s$ from $t$.
+\end{proof}
+
+We build our data structure using the findings of Lemma \ref{lem:path-intersects-tree}. We augment each internal node $\mu$ of the hierarchy tree ${\cal T}_G$ with the skeleton tree $T({\cal H}_{S(\mu)})$ and the projection mapping ${\pi}_{S(\mu)}$ corresponding to Steiner set $S(\mu)$. Since augmentation at each internal node takes ${\cal O}(n)$ space, therefore the total space occupied by the data structure is only ${\cal O}(n^2)$.
+
+
+% Consider any node $\nu$ in ${\cal T}_G$.
+% Let $s,t$ be any two vertices such that
+% $\nu$ is their LCA in ${\cal T}_G$. $s$ and $t$ must belong to different nodes in the the skeleton ${\cal H}_{S(\nu)}$ stored at $\nu$. 
+% It follows from Lemma \ref{lem:path-intersects-tree} that for a single-edge-containment query, we just have to keep the skeleton tree and the projection mapping at each internal node in ${\cal T}_G$. It is important to note that both these data structures collectively only take up ${\cal O}(n)$ space, contrary to the ${\cal O}(\min(m,nc_S)$ size taken up by the entire connectivity carcass. Thus, the size taken up by complete data structure is only ${\cal O}(n^2)$. 
+
+Determining whether a given edge belongs to a $(s,t)$-mincut can be done as follows. Let $\mu$ be the LCA of $s$ and $t$ in ${\cal T}_G$. It follows from Observation \ref{obs:(s,t)-mincut-lca} that $c_{s,t}=c_{S(\mu)}$. Thus, $s$ and $t$ must be separated by some Steiner mincut for set $S(\mu)$. We check if paths $P(x,y)$ and $P(\pi_{S(\mu)}(s),\pi_{S(\mu)}(t))$ intersect in the skeleton ${\cal H}_{S(\mu)}$ (using Lemma \ref{lem:path-intersects-tree}). This can be done using ${\cal O}(1)$ LCA queries on the skeleton tree $T({\cal H}_{S(\mu)})$. Since it takes ${\cal O}(1)$ time for answering one LCA query \cite{DBLP:journals/jal/BenderFPSS05}, so the query time will be ${\cal O}(1)$ only. Algorithm \ref{algo:quadratic-space-query} presents a concise pseudocode of the query answering algorithm.
+
+\begin{algorithm}%[H]
+    \caption{Single edge-containment queries in ${\cal O}(n^2)$ data structure}
+    \label{algo:quadratic-space-query}
+    \begin{algorithmic}[1] % The number tells where the line numbering should start
+        \Procedure{edge-cotained}{$s,t,x,y$}
+            \State{${\mu}\gets$ LCA($\mathcal T_G,s,t$)}
+            \State $\mathcal P_1 \gets P(\pi_{S(\mu)}(s),\pi_{S(\mu)}(t))$
+            \State $\mathcal P_2 \gets P(x,y)$
+            \If{$\mathcal P_1 \cap \mathcal P_2 = \varnothing$} 
+            \State \textbf{return} False
+            \Else 
+            \State \textbf{ return} True
+            \EndIf
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+We can thus state the following theorem.
+\begin{theorem}
+ Given an undirected graph $G=(V,E)$ on $n=|V|$ vertices, there exists a data structure of 
+${\cal O}(n^2)$ size that takes ${\cal O}(1)$ time to determine whether an edge $(x,y)\in E$
+belongs to a $(s,t)$-mincut for any $s,t\in V$
+and $(x,y)\in E$.
+% \label{thm:O(n^2)-size-data-structure}
+\end{theorem}
+
+In the following section we present our ${\cal O}(m)$ size data structure which is more compact and can even handle multiple-edge-containment query.
+
+
+\section{An \texorpdfstring{${\cal O}(m)$}{O(m)} size data structure for edge-containment queries}
+
+Consider any node $\mu$ in ${\cal T}_G$. We associate a compact graph with node $\mu$, say $G_\mu=(V_\mu,E_\mu)$ with the following properties. 
+
+\begin{enumerate}
+    \item $G_\mu$ is a quotient graph of $G$ with $S(\mu)\subseteq V_\mu$
+    \item  For each $s,t\in S(\mu)$ and a set of edges $E_y$ incident on vertex $y\in V$, there exists a set of edges $E_{y'}$ incident on vertex $y'\in V_\mu$ such that $E_y$ lies in a $(s,t)$-mincut in $G$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_\mu$.
+\end{enumerate}
+
+For the root node $r$, $G_r=G$ and the two properties hold trivially.
+We traverse ${\cal T}_G$ in a top down fashion to construct $G_\mu$ for each node $\mu \in {\cal T}_G$ as follows. Let $\mu$ be the parent of $\mu'$ in ${\cal T}_G$. Assume we have graph $G_{\mu}$ already built with the properties mentioned above. Thus, $S(\mu)\subseteq V_\mu$. Using Observation \ref{obs:maximal-subset-subtree} we know that $S(\mu')$ is a maximal subset of $S(\mu)$ with connectivity strictly greater than that of $S(\mu)$. Using Theorem \ref{thm:edge-correspondence} with $S=S(\mu)$ and $S'=S(\mu')$, it can be shown that there exists a graph $G_{S(\mu')}$ 
+% such that -- for each $s,t \in S(\nu)$ and set of edges $E_y$ incident on vertex $y\in V_{\mu}$ there exists a set of edges $E_{y'}$ incident on vertex $y'\in V_\nu$ such that $E_y$ lies in a $(s,t)$-mincut in $G_\mu$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_\nu$. This also implies that the above $2$ properties will hold for $G_\nu$.
+that satisfies both the properties above. We define $G_{\mu'}$ to be $G_{S(\mu')}$.
+The graph $G_{\mu'}$ itself
+can be obtained using the $2$-step contraction procedure described in Section \ref{sec:compact-graph}.
+
+
+% We use Property 1 and Observation \ref{obs:maximal-subset-subtree} to build the graph $G_\nu$ for the subset $S(\nu)$ from $G_\mu$ following the procedure described in Section \ref{sec:compact-graph}. Using Theorem \ref{thm:edge-correspondence}, it follows that $G_\nu$ also satisfies Property 2.
+
+Our compact data structure will be ${\cal T}_G$ where each node $\mu$ will be augmented with the connectivity carcass of $S(\mu)$ in graph $G_\mu$. 
+
+\subsection{The query algorithm}
+
+A query \textsc{edge-contained}$(s,t,E_y)$ can be answered by the data structure as follows. We start from the root node of ${\cal T}_G$ and traverse the path to the node $\nu$ which is the LCA of $s$ and $t$. Consider any edge $(\mu,\mu')$ on this path, where $\mu$ is parent of $\mu'$. We modify the query \textsc{edge-contained}$(s,t,E_y)$ in $G_{\mu}$ to an equivalent query \textsc{edge-contained}$(s,t,E_{y'})$ in $G_{\mu'}$ as we move to $\mu'$ (see Theorem \ref{thm:edge-correspondence}). This computation can be carried out in time linear in size of flesh at node $\mu$ using Lemma \ref{lem:linear-time-qt}. We stop when $\mu = \nu$. Observe that $c_{s,t} = c_{S(\nu)}$ (using Observation \ref{obs:(s,t)-mincut-lca}) and thus must be separated by some Steiner mincut for $S(\nu)$.
+Thus we compute the strip ${\cal D}_{s,t}$ at node $\nu$ and answer the edge-containment query using Lemma \ref{lem:E_y-edges-same-side}. If the query evaluates to true, we compute a $(s,t)$-mincut in $G_\nu$ using ${\cal D}_{s,t}$ that contains the required set of edges at this level. We retrace the path from $\nu$ to the root of ${\cal T}_G$.
+% A $(s,t)$-mincut containing the edges in $E_y$ can be obtained as follows. We start from the LCA of $s$ and $t$ in ${\cal T}_G$, say $\nu$. We construct the strip ${\cal D}_{s,t}$ and obtain a $(s,t)$-mincut that contains the required set of edges. We traverse the path from $\nu$ to the root of ${\cal T}_G$.
+Consider any edge $(\mu,\mu')$ on this path where $\mu$ is parent of $\mu'$. We find a corresponding $(s,t)$-mincut in graph $G_\mu$ from the $(s,t)$-mincut of $G_{\mu'}$ using Lemma \ref{lem:mincut-qt}. We stop at the root node and report the set of vertices defining the $(s,t)$-mincut in $G$.
+We can thus state the following theorem.
+
+\begin{theorem}
+Given an undirected graph $G=(V,E)$ on $n=|V|$ vertices and $m=|E|$ edges, there exists a data structure of ${\cal O}(m)$ size that can determine whether any given subset of edges $E_y$ incident on vertex $y$ belongs to a $(s,t)$-mincut for any $s,t,y\in V$ and report the same if exists. The time taken to answer this query is ${\cal O}(\min(m,nc_{s,t}))$.
+\label{thm:O(m)-size-data-structure}
+\end{theorem}
+
+\subsection{Size and Time analysis of compact data structure}
+\label{appendix:size-time-analysis-compact-ds}
+
+The data structure doesn't seem to be an ${\cal O}(m)$ size data structure at first sight. Observe that augmentation at any internal node can still take ${\cal O}(m)$ space individually. Interestingly, we show that collective space taken by augmentation at each internal node will still be ${\cal O}(m)$.
+
+We begin with the following lemma which gives a tight bound on the sum of weights of edges in Gomory-Hu tree is $\Theta(m)$. We also give the proof for the same which was suggested in \cite{DBLP:conf/stoc/HariharanKPB07,DBLP:journals/siamcomp/DinitzV00}.
+
+\begin{lemma}[\cite{DBLP:conf/stoc/HariharanKPB07,DBLP:journals/siamcomp/DinitzV00}]
+\label{fact:GH-weight}
+The sum of weights of all edges in the Gomory-Hu tree is ${\Theta}(m)$.
+\end{lemma}
+\begin{proof}
+Consider any edge $(u,v)\in E$. This edge must be present in every $(u,v)$-mincut. Thus, the sum of weights of all edges in Gomory-Hu tree is at least $m$. Now, root the Gomory-Hu tree at any arbitrary vertex $r$. Let $f$ maps each edge in this tree to its lower end-point. It is easy to observe that $f$ is a one-to-one mapping. Let $e$ be an edge in the Gomory-Hu tree. Observe that $w(e) \leq deg(f(e))$ (where $deg()$ is the degree of vertex in $G$). Thus the sum of weights of all edges in Gomory-Hu tree is at most $2m$. This comes from the simple observation that the sum of the degree of all vertices in $G$ equals $2m$.
+\end{proof}
+
+Let us assign each edge $(\mu,\mu')$ in the hierarchy tree ${\cal T}_G$ weight equal to the Steiner mincut value for the Steiner set $S(\mu)$ (if $\mu$ is the parent of $\mu'$). We shall show that sum of the weight of edges in hierarchy tree ${\cal T}_G$ is $\Theta(m)$. %This will help in our analysis later.
+
+To establish this bound refer to algorithm \ref{Construct Tree} that gives an algorithm to construct the hierarchy tree from Gomory-Hu tree. Observe that the variable $ctr$ in this algorithm stores the sum of weights of all edges in ${\cal T}_G$. It is clear that for $k$ edges removed from the Gomory-Hu tree, we add $k+1$ edges of equal weight in ${\cal T}_G$. Thus, the sum of the weight of all edges in ${\cal T}_G$ is at most $4m$ (since $k+1 \leq 2k$). Therefore, we state the following lemma.
+
+\begin{algorithm}%[H]
+    \caption{Construct Hierarchy Tree ${\cal T}_G$ from Gomory-Hu Tree $\hat{ \cal T}_{G}$}
+    \label{Construct Tree}
+    \begin{algorithmic}[1] % The number tells where the line numbering should start
+        \State $ctr \gets 0$
+        \Procedure{Construct-Tree}{$\hat{ \cal T}_{G}$}
+            \If{$\hat{ \cal T}_{G}$ has single node}
+            \State Create a node $\mu$
+            \State $val(\mu) \gets val(\hat{ \cal T}_{G})$
+            \State \textbf{return} $\mu$
+            \EndIf
+            \State $c_{\min} \gets$ $\min_{e\in \hat{ \cal T}_{G}}w(e)$
+            \State Let there be $k$ edges with weight $c_{\min}$
+            \State Remove all edges of weight $c_{\min}$ in $\hat{ \cal T}_{G}$ to get $(k+1)$ trees $T_1,..,T_{k+1}$
+            \State Create a node $\mu$
+            \State $ctr \gets ctr + c_{\min}\times(k+1)$
+            \State $children(\mu) \gets \{\textsc{Construct-Tree}(T_i)\;|\;\forall i\in [k+1]\}$
+            \State \textbf{return} $\mu$
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+\begin{lemma}
+\label{lem:hierarchy-tree-weight}
+The sum of weights of all edges in the tree ${\cal T}_G$ is ${\Theta}(m)$.
+\end{lemma}
+% The size and time analysis of the data structure crucially exploits the following observations,
+We shall now give a bound on the size of connectivity carcass augmented at each internal node. The following lemma gives a bound on the size of flesh graph ${\cal F}_S$ for any Steiner set $S$.
+
+\begin{lemma}
+Let ${\cal V}_S$ and ${\cal W}_S$ denote the set of Steiner and non-Steiner units respectively in flesh graph ${\cal F}_S$ with Steiner set $S\subseteq V$. The size of ${\cal F}_S$ is bounded by $|{\cal V}_S|c_S + \sum_{u\in {\cal W}_S}deg(u)$.
+\label{lem:size-of-flesh}
+\end{lemma}
+\begin{proof}
+Consider the Gomory-Hu tree of the flesh ${\cal F}_S$, say ${\cal T}$. It is evident that the value of mincut between any two units is at most $c_S$. This follows from the definition of a unit. Now, root this tree ${\cal T}$ at some Steiner unit. Let $f$ maps each edge in this tree to its lower end-point. Any edge in this tree has weight at most $c_S$. However, for any non-Steiner unit $u$, $w(f^{-1}(u)) \leq deg(u)$ (where $deg()$ is the degree of vertex in $G$).  Thus, the sum of weight of all edges in ${\cal T}$ is bounded by $|{\cal V}_S|c_S + \sum_{u\in {\cal W}_S}deg(u)$. Using Lemma \ref{fact:GH-weight}, it follows that size of flesh ${\cal F}_S$ is bounded by $|{\cal V}_S|c_S + \sum_{u\in {\cal W}_S}deg(u)$.
+\end{proof}
+
+Consider the flesh graph ${\cal F}_{S(\mu)}$ stored at some internal node $\mu$ in the tree. Let ${\cal V}_{S(\mu)}$ and ${\cal W}_{S(\mu)}$ denote the set of Steiner and non-Steiner units respectively in ${\cal F}_{S(\mu)}$. Let $u$ be some non-Steiner unit in ${\cal F}_{S(\mu)}$. It is evident that $u$ consists of only contracted vertices (obtained after the contraction procedure at some ancestral node). This non-Steiner unit gets compressed to a new contracted vertex in all descendants, and in a sense, disappears. Thus, each contracted vertex appears in at most one non-Steiner unit. 
+
+Now, we shall count the total number of contracted vertices introduced at each internal node. We know that this count is an upper bound on the total number of non-Steiner units across all flesh graphs. It follows from Lemma \ref{lem:contracted-subcactus-mincut} that the number of contracted vertices introduced by node $\mu$ to the graph $G_{\mu'}$ associated with its child $\mu'$ is equal to the number of cycles and tree edges incident on node corresponding to $\mu'$ in skeleton ${\cal H}_{S(\mu)}$. We sum this number for each child of $\mu$. The total number of contracted vertices introduced by internal node $\mu$ to all its children is at most twice the number of tree and cycle edges. Since the skeleton is a cactus graph, thus the number of tree and cycle edges is ${\cal O}(|{\cal V}_{S(\mu)}|)$. Moreover, we know that the number of Steiner units in ${\cal F}_{S(\mu)}$ also equals the number of children of node $\mu$ in tree ${\cal T}_G$. Therefore, the number of Steiner units across all flesh graphs stored at each internal node is given by ${\sum}_{\mu \in {\cal T}_G}|{\cal V}_{S(\mu)}|$ which is ${\cal O}(n)$. Thus, the total number of non-Steiner units across all flesh graphs is also ${\cal O}(n)$.
+
+Now, we shall bound the sum of the degree of all non-Steiner units across all flesh graphs. Since each contracted vertex appears in at most one non-Steiner unit, we can sum the degree of all contracted vertices to get an upper bound. It again follows from Lemma \ref{lem:contracted-subcactus-mincut} that the degree of contracted vertex introduced by node $\mu$ is exactly $c_{S(\mu)}$. Thus, the sum of degree of all contracted vertices introduced by node $\mu$ is ${\cal O}(|{\cal V}_{S(\mu)}|c_{S(\mu)})$.
+
+Combining the above observations, we can infer the following.
+
+
+\begin{inference}
+\label{inf:units-O(n)}
+The total number of units across all flesh graphs is ${\cal O}(n)$.
+\end{inference}
+\begin{inference}
+\label{inf:sum-degree}
+The sum of degree of non-Steiner units across all flesh graphs stored at each internal node $\mu$ is ${\cal O}(\sum_{\mu \in {\cal T}_G}{|{\cal V}_{S(\mu)}|}c_{S(\mu)})$ i.e ${\cal O}(m)$ (follows from Lemma \ref{lem:hierarchy-tree-weight}). In other words, $\sum_{\mu \in {\cal T}_G} \sum_{u \in {\cal W}_{S(\mu)}}deg(u)$ is ${\cal O}(m)$.
+\end{inference}
+
+
+\subsubsection*{Size analysis of Data Structure}
+Combining Lemma \ref{fact:GH-weight}, Lemma \ref{lem:hierarchy-tree-weight}, Lemma \ref{lem:size-of-flesh} and Inference \ref{inf:sum-degree} we get the following result.
+\begin{equation*}
+    \begin{split}
+        \nonumber
+        \sum_{\mu \in {\cal T}_G}|{\cal F}_{S(\mu)}| &\leq c_1 \times \sum_{\mu \in {\cal T}_G} (|{\cal V}_{S(\mu)}|c_{S(\mu)} + \sum_{u\in {\cal W}_{S(\mu)}}deg(u))\\
+        &\leq c_2 \times m
+    \end{split}
+\end{equation*}
+
+
+\subsubsection*{Time analysis of Data Structure}
+
+A trivial bound on the query time follows from the size analysis itself. Since the combined size of our data structure is ${\cal O}(m)$, it follows that the sum of sizes of all flesh graphs from the root node to $LCA(s,t)$ will also be ${\cal O}(m)$. Dinitz and Vainshtein \cite{DBLP:conf/stoc/DinitzV94} showed that size of flesh graph ${\cal F}_S$ is ${\cal O}(\tilde{n}c_S)$ for Steiner set $S$, where $\tilde{n}$ is the number of units in the flesh graph. Total number of units across all flesh graphs is only ${\cal O}(n)$ (Inference \ref{inf:units-O(n)}). The value of Steiner mincut increases as we traverse from the root towards a leaf. Thus, $c_{s,t}$ is the maximum Steiner mincut value in the path from root node to $LCA(s,t)$ . Thus, the sum of sizes of all flesh graphs in this path is bounded by ${\cal O}(nc_{s,t})$. Thus, the query time we achieve is ${\cal O}(\min(m,nc_{s,t}))$.

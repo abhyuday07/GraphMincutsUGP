@@ -1,0 +1,96 @@
+
+\documentclass[letterpaper,11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{my_style}
+\usepackage{subfiles}
+% \usepackage{authblk}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{microtype} %if unwanted, comment out or use option "draft"
+% \usepackage{style/lipics-addon}
+
+%\graphicspath{{./style/lipics/}}%helpful if your graphic files are in another directory
+\bibliographystyle{plainurl}
+%\usepackage[backend=biber, sorting=ynt]{biblatex}
+%\addbibresource{refs.bib}
+%\usepackage{csquotes}
+
+% Tools for theorems and restates
+\usepackage{thmtools}
+\usepackage{thm-restate}
+
+\usepackage{floatflt}
+\usepackage{graphics}
+
+
+% \bibliographystyle{alpha}
+\begin{document}
+\pagenumbering{gobble}
+\begin{titlepage}
+
+\title{Fault-Tolerant All-Pairs Mincuts}
+\author{
+  Surender Baswana\thanks{Department of Computer Science \& Engineering, IIT Kanpur, Kanpur -- 208016, India, sbaswana@cse.iitk.ac.in}
+  \and
+  Abhyuday Pandey\thanks{Department of Computer Science \& Engineering, IIT Kanpur, Kanpur -- 208016, India, abhyuday@cse.iitk.ac.in}
+}
+\maketitle
+
+\begin{abstract}
+Let $G=(V,E)$ be an undirected unweighted graph on $n$ vertices and $m$ edges. We address the problem of fault-tolerant data structure for all-pairs mincuts in $G$ defined as follows.
+
+Build a compact data structure that, on receiving a pair of vertices $s,t\in V$ and any edge $(x,y)$ as query, can efficiently report the value of the mincut between $s$ and $t$ upon failure of the edge $(x,y)$.
+
+To the best of our knowledge, there exists no data structure for this problem which takes $o(mn)$ space and a non-trivial query time. We present two compact data structures for this problem.
+\begin{enumerate}
+\item Our first data structure guarantees ${\cal O}(1)$ query time. The space occupied by this data structure is ${\cal O}(n^2)$ which matches the worst-case size of a graph on $n$ vertices.
+\item
+Our second data structure takes ${\cal O}(m)$ space which 
+% is optimal
+matches the size of the graph. The query time is ${\cal O}(\min(m,n c_{s,t}))$ where $c_{s,t}$ is the value of the mincut between $s$ and $t$ in $G$. The query time guaranteed by our data structure is faster by a factor of $\Omega(\sqrt{n})$ compared to the best known algorithm \cite{DBLP:conf/focs/GoldbergR97a,DBLP:conf/stoc/KargerL98} to compute a $(s,t)$-mincut.
+\end{enumerate}
+
+
+Both these data structures can also report the resulting $(s,t)$-mincut incorporating the failure in ${\cal O}(\min(m,n c_{s,t}))$ time.
+
+\end{abstract}
+\end{titlepage}
+\pagebreak
+\pagenumbering{arabic}
+\section{Introduction}
+\subfile{src/introduction}
+
+\section{Preliminaries} \label{sec:prelimiaries}
+\subfile{src/preliminaries}
+
+\section{Insights into \texorpdfstring{$3$}{3}-vertex mincuts} \label{sec:query-transformation}
+\subfile{src/compact-graph-query-transf}
+
+
+\vspace{-6mm}
+\section{A Compact Graph for Query Transformation}
+\vspace{-2mm}
+\subfile{src/ft-steiner-connectivity}
+\vspace{-3mm}
+\section{Compact Data Structures for Edge-Containment Query} \label{sec:final-ds}
+\vspace{-2mm}
+\subfile{src/graph-contractions}
+
+
+% \section{Conclusion and Future Work}
+
+\pagebreak
+
+\bibliography{refs}
+
+
+% \pagebreak
+% \section{TODO}
+% \subfile{src/todo}
+
+\pagebreak
+\appendix
+
+\subfile{src/appendix}
+
+\end{document}

@@ -1,0 +1,84 @@
+\label{sec:compact-graph-section}
+Let $S\subseteq V$ be the Steiner set of vertices. Suppose $S'\subset S$ be any maximal subset of vertices with connectivity greater than that of $S$.  Observe that the entire set $S'$ will be mapped to a single node, say $\nu$, in the skeleton ${\cal H}_S$. In this section, we present the construction of a compact graph $G_{S'}$ such that any query \textsc{edge-contained}$(s,r,E_y)$ in graph $G$ can be efficiently transformed to a query \textsc{edge-contained}$(s,r,E_{y'})$ in graph $G_{S'}$ for any $s,r\in S'$.
+% on which can answer \textsc{edge-contained}$(s,r,E_y)$ efficiently for any $s,r\in S'$ and any subset $E_y$ of edges emanating from $y\in V$.
+\vspace{-2mm}
+\subsection{Construction of Compact Graph \texorpdfstring{$G_{S'}$}{}}\label{sec:compact-graph}
+
+
+The construction of $G_{S'}$ from the graph $G$, flesh ${\cal F}_S$ and skeleton ${\cal H}_S$ is a $2-$step process. In the 1st step, we contract the subcactuses neighbouring to node $\nu$ using the following procedure.
+%We start with the original graph and then contract the subcactuses using the following procedure,
+
+{\textsc{Contract-Subcactuses}}: For each tree-edge incident on $\nu$ (or cycle $c$ passing through $\nu$) in skeleton ${\cal H}_S$, remove the tree-edge (or the pair of edges from $c$ incident on $\nu$) to get 2 subcactuses. Compress all the terminal units of ${\cal F}_S$ that belong to the subcactus not containing $\nu$ into a single vertex. Moreover, compress all the stretched units with both endpoints within this subcactus into the same vertex.
+
+In the quotient graph obtained after 1st step, each contracted subcactus defines a Steiner mincut. 
+However, this graph may not necessarily be compact since there may be many stretched units that are not yet compressed. 
+%Consider one such stretched unit $u$ and suppose
+Let $u$ be any such unit and suppose
+the path to which it is mapped in the skeleton is $P(\nu_1,\nu_2)$. If one of $\nu_1$ or $\nu_2$ is $\nu$, we can compress the stretched unit to the contracted vertex corresponding to the other endpoint. To handle the case when the subcactuses containing $\nu_1$ and $\nu_2$ are compressed to different vertices,
+%The challenge is to tackle the case when subcactuses containing $\nu_1$ and $\nu_2$ are compressed to different vertices. 
+% At first sight, it may seem appropriate to arbitrarily compress such stretched unit to one of these vertices. However, this approach won't guarantee that the contracted subcactus corresponds to a Steiner mincut. It can be explained as follows. Suppose $u_1,u_2$ and $u_3$ are three stretched units and there is a coherent path in ${\cal F}_S$ that passes through them in the order $\langle u_1,u_2,u_3 \rangle$. If we compress $u_2$ to one vertex and $u_1,u_3$ to another, the cut defined by either of these vertices will intersect the coherent path twice, and hence it will not be a Steiner mincut.
+%To tackle this problem,
+we define a total ordering on the set containing all tree-edges and cycles in the skeleton. The 2nd step uses this ordering to compress the stretched units as follows.
+%Thenceforth, we contract each of the remaining stretched units to one of the contracted subcactus using the following procedure to get $G_{S'}$,
+
+
+{\textsc{Contract-Stretched-Units}}: A stretched unit mapped to path $P(\nu_1,\nu_2)$, where $\nu_1\neq \nu \neq \nu_2$, is compressed to the contracted subcactus corresponding to lesser ordered cycle/tree-edge in which endpoints lie. If one of $\nu_1$ or $\nu_2$ is $\nu$, we compress it to the contracted subcactus corresponding to the cycle/tree-edge where other endpoint lies.
+
+The following lemma (Proof in Appendix \ref{appendix:contracted-subcactus-mincut}) states the property of the resulting graph.
+% $G_{S'}$ obtained after the $2-$step contraction procedure. 
+% that will be required for answering the queries.
+
+\begin{lemma}
+Let $S'\subset S$ be a maximal subset of vertices such that $c_{S'}>c_S$ and $\nu$ be the node in ${\cal H}_S$ corresponding to $S'$. Let $G_{S'}$ be the graph obtained after %applying the above procedure.
+$2$-step contraction procedure. 
+\begin{enumerate}
+    \item The set of vertices compressed to a contracted vertex defines a Steiner mincut for set $S$.
+    \item The number of contracted vertices equals the number of cycles and tree edges incident on node $\nu$ in ${\cal H}_S$.
+\end{enumerate}
+\label{lem:contracted-subcactus-mincut}
+\end{lemma}
+
+\vspace{-8mm}
+\subsection{Query transformation in \texorpdfstring{$G_{S'}$}{compact graph}}
+% {\color{red} Motivation for this subsection is missing in the following start line.}
+
+% The graph $G_{S'}$ does not even contain all edges of graph $G$ because a large portion of vertices is contracted. However, we can use the findings of Section \ref{sec:query-transformation} to effectively handle this problem. 
+We begin with a lemma that was used by Gomory and Hu to build a tree storing all-pairs mincuts. 
+
+\begin{lemma}[Gomory and Hu \cite{GH61}]
+Let $A$ defines a $(s,t)$-mincut with $s\in A$. Let $r\in A$ be any vertex.
+For any $(s,r)$-mincut, say defined by $B$, there exists a $(s,r)$-mincut that keeps $\bar A$ intact and still contains all edges in cut defined by $B$ that don't have both endpoints in $\bar A$.
+\label{lem:GH}
+\end{lemma}
+
+Consider any two vertices $s,r\in S'$. Recall that $S'$ is mapped to $\nu$ in the skeleton ${\cal H}_S$. 
+% Consider any cycle $c$ that passes through $\nu$ in the cactus. 
+Let $A$ be the subset of vertices compressed to a contracted vertex in $G_{S'}$. Notice that all those $(s,r)$-mincuts in $G$ that keep $\bar{A}$ intact remain preserved in $G_{S'}$. Moreover, it follows from Lemma \ref{lem:contracted-subcactus-mincut} and Lemma \ref{lem:GH} that there is at least one such $(s,r)$-mincut. So it suffices to work with graph $G_{S'}$ if one wishes to calculate the value of $(s,r)$-mincut in $G$ or simply report a $(s,r)$-mincut in $G$
+for any $s,r\in S$. Moreover, we can answer a query \textsc{edge-contained}$(s,r,E_y)$ using $G_{S'}$ if all edges in $E_y$ remain intact in graph $G_{S'}$. 
+However, answering a query \textsc{edge-contained}$(s,r,E_{y})$ for any arbitrary $E_y$ using $G_{S'}$ is still challenging. This is because 
+% we need to find at least one $(s,r)$-mincut in $G$ that contains all edges in $E_y$ but 
+$G_{S'}$ may not even preserve all $(s,r)$-mincuts. In particular, all those $(s,r)$-mincuts that cut the set associated with a contracted vertex in $G_{S'}$ get lost during the transformation from $G$ to $G_{S'}$. We shall now establish a mapping from the set of all such lost $(s,r)$-mincuts to the set of $(s,r)$-mincuts that are present in $G_{S'}$. 
+
+Let $y$ belong to $\bar{A}$. It follows from Lemma \ref{lem:contracted-subcactus-mincut} that the cut $(A,\bar{A})$ is a $(s,t)$-mincut for any $t\in S\cap \bar{A}$. Hence, $A,s,t,r$ satisfy all conditions of Theorem  \ref{thm:query-transform}. Now notice that entire $\bar{A}$
+is compressed to a single vertex, say $y'$, in $G_{S'}$. Hence we can state the following Theorem.
+
+
+
+\begin{theorem} \label{thm:edge-correspondence}
+Given an undirected graph $G=(V,E)$, a subset $S\subseteq V$, let $S'\subset S$ be a maximal subset of vertices such that $c_{S'}>c_S$.
+There exists a quotient graph $G_{S'}$ with the following property.~
+For any two vertices $r,s \in S'$ and a set of edges $E_y$ incident on vertex $y$ in $G$, there exists a set of edges $E_{y'}$ incident on a vertex $y'$ in $G_{S'}$ such that $E_y$ lies in a $(r,s)$-mincut in $G$ if and only if $E_{y'}$ lies in a $(r,s)$-mincut in $G_{S'}$. 
+\end{theorem}
+
+We have already seen the construction of $G_{S'}$. In order to transform  \textsc{edge-contained}$(s,r,E_y)$ to \textsc{edge-contained}$(s,r,E_{y'})$  using Theorem \ref{thm:edge-correspondence}, we give an efficient algorithm for computing $E_{y'}$. Moreover, once we find a $(r,s)$-mincut in $G_{S'}$ that contains $E_{y'}$ we can efficiently compute a $(r,s)$-mincut in $G$ that contains all edges in $E_{y}$. Interestingly, we have algorithms that run in time linear in the size of flesh for both these tasks, stated in the following Lemma (Proof in Appendix \ref{appendix:linear-time-qt}). 
+
+\begin{lemma}
+\label{lem:linear-time-qt}
+Set of edges $E_{y'}$ in Theorem \ref{thm:edge-correspondence} can be obtained from $E_y$ given flesh ${\cal F}_S$ and skeleton $\mathcal H_S$ in time linear in the size of flesh.
+\end{lemma}
+
+\begin{lemma}
+\label{lem:mincut-qt}
+Given a $(r,s)$-mincut in $G_{S'}$ that contains the all edges in set $E_{y'}$, we can construct a $(r,s)$-mincut in $G$ that contains all edges in set $E_y$ in time linear in the size of flesh ${\cal F}_S$.
+% (Proof follows from Corollary \ref{cor:query-transformation})
+\end{lemma}
