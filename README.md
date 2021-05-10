@@ -1,6 +1,6 @@
 # Graph Mincuts UGP
 
-This Undergraduate Project was completed in two parts. 
+This Undergraduate Project was completed in two parts at Indian Institute of Technology, Kanpur for partial fulfilment of my degree. The project was completed under the supervision of Prof Surender Baswana, Department of Computer Science and Engineering. 
 
 - CS498 (Semester 2020-21 I) : Fault-Tolerant All-Pairs Mincuts
 - CS396 (Sememster 2020-21 II) : Sensitivity Oracle for All-Pairs Mincuts, also includes Lower Bounds for Mincut Data Structures.
