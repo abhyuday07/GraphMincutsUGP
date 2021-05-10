@@ -1,0 +1,69 @@
+\chapter{Conditional Lower Bounds on Mincut Data Structures}
+
+\section{Strip representation of reachability in directed graphs}
+
+The problem of reachability in directed graph is as follows -- Given a directed graph $\vv{G}$, preprocess it to form a data structure which can efficiently report if a given vertex $v$ is reachable from another vertex $u$. The problem becomes interesting if we allow the underlying graph to be sparse. Is there any data structure that takes ${o}(n^2)$ space and still offers efficient query time? Patrascu \cite{DBLP:journals/siamcomp/Patrascu11} stated it as a difficult open problem and also gave a partial answer to it. In particular, if constant query time is required, the space needs to be $n^{1+\Omega(1)}$. Goldstein et al \cite{DBLP:conf/wads/GoldsteinKLP17} stated a conjecture that concisely conveys the belief.
+
+\begin{conjecture}[Directed Reachability Hypothesis \cite{DBLP:conf/wads/GoldsteinKLP17}]
+\label{conj:directed-reachability-hypothesis}
+Any data structure for the problem of reachability in directed graphs must either use ${\tilde \Omega}(n^2)$ space, or linear query time.
+\end{conjecture}
+
+The reachability in $\vv{G}$ is same as reachability in $G_{SCC}$, a directed acyclic graph which can be obtained by contracting each of the Strongly Connected Components (SCCs) to a single vertex. Henceforth, we shall assume that $\vv{G}$ is a directed acyclic graph.
+
+We can transform a directed acyclic graph $\vv{G}$ into a $(s,t)$-strip ${\cal D}_{s,t}$ as follows. Create two additional vertices, namely $s$ and $t$. Suppose $\Delta_v$ denotes the difference in indegree and outdegree of any vertex $v$ in $V(\vv{G})$. For each vertex $v \in V(\vv{G})$, if $\Delta_v > 0$ we add $\Delta_v$ edges from $v$ to $t$. Likewise, if $\Delta_v < 0$ we add $|\Delta_v|$ edges from $s$ to $v$. Lastly, add two additional edge(s) from $s$ to $v$ and $v$ to $t$ for all $v \in V(\vv{G})$. Note that the resultant graph is a strip by making all the edges undirected and taking the inedges and outedges as the inherent partition of each non-terminal unit. Moreover, the number of edges in this graph is only ${\cal O}(m)$. A non-terminal unit $v$ is reachable from another non-terminal unit $u$ if and only if there exists a coherent path from $u$ to $v$ in ${\cal D}_{s,t}$. Thus, we state the following lemma.
+
+
+\begin{lemma}
+\label{lem:directed-path-coherent-path}
+For a directed graph $\vv{G}$ with $n$ vertices and $m$ edges, there exists a strip ${\cal D}_{s,t}$ with ${\cal O}(m)$ edges and $n+2$ vertices such that \textsc{Reachable}$(\vv{G},u,v)$ is true if and only if there exists a coherent path from $u$ to $v$ in the strip ${\cal D}_{s,t}$.
+\end{lemma}
+
+
+\section{Conditional Lower Bound for Generalized Flow Tree for $2\times 2$ mincuts}
+
+We shall show how to transform a \textsc{Reachable} query to a $2\times 2$ static mincut query on the strip ${\cal D}_{s,t}$. Although we show a reduction of query to strip ${\cal D}_{s,t}$, the reduction applies to the underlying undirected unweighted graph $G$ composed of nodes and edges from ${\cal D}_{s,t}$. Without loss in generality, assume $v$ exceeds $u$ in some topological ordering. We state the following lemma.
+
+\begin{lemma}
+\label{lem:lower-bound-gft}
+Suppose $u$ and $v$ are two vertices of a directed graph $\vv{G}$ and ${\cal D}_{s,t}$ be the corresponding strip representation. Moreover, $v$ exceeds $u$ in some topological ordering of ${\cal D}_{s,t}$. \textsc{Reachable}$(\vv{G},u,v)$ evaluates to true if and only if \textsc{Mincut}$(\{s,v\},\{u,t\}) > c_{s,t}$.
+\end{lemma}
+\begin{proof}
+Suppose \textsc{Reachable}$(\vv{G},u,v)$ is true. Using Lemma \ref{lem:directed-path-coherent-path}, there exists a coherent path from $u$ to $v$. Thus, $u \in {\cal R}_s(v)$. It follows from \ref{lem:reachability-cones}, that $u$ lies in nearest $\{s,v\}$ to $t$ mincut. Therefore, there is no $\{s,v\}$ to $t$ mincut that keeps $u$ on the side of $t$. Therefore, \textsc{Mincut}$(\{s,v\},\{u,t\}) >$ \textsc{Mincut}$(\{s,v\},t) = c_{s,t}$. If \textsc{Reachable}$(\vv{G},u,v)$ is false, $u \not\in {\cal R}_s(v)$. Thus, ${\cal R}_s(v)$ is a $(s,t)$-mincut as well as a $(\{s,v\},\{u,t\})$-mincut. Thus,  \textsc{Mincut}$(\{s,v\},\{u,t\}) = c_{s,t}$.
+\end{proof}
+
+Using Conjecture \ref{conj:directed-reachability-hypothesis} and Lemma \ref{lem:lower-bound-gft} we state the following conditional lower bound.
+
+\begin{theorem}
+\label{th:lower-bound-gft}
+Assuming Directed Reachability Hypothesis holds, any data structure that can report the value of $(\{s,v\},\{u,t\})$-mincut for given $u,v \in V$ and designated $s,t \in V$ in an undirected unweighted multigraph $G$ must either use ${\tilde \Omega}(n^2)$ space, or linear query time.
+\end{theorem}
+
+
+
+\section{Conditional Lower Bound for dual-fault-tolerant $(s,t)$-mincut}
+
+We show that \textsc{Reachable}$(\vv{G},u,v)$ can be determined using the fault-tolerant query \textsc{FT-Mincut}$(s,t,\{(s,u),(v,t)\})$ on the strip ${\cal D}_{s,t}$. $v$ is reachable from $u$ if and only if the fault-tolerant query returns value equal to the original mincut between $s$ and $t$ less unity. In other words, $v$ is reachable from $u$, if and only if \textsc{FT-Mincut}$(s,t,\{(s,u),(v,t)\}) = c_{s,t} - 1$. We state the following lemma.
+
+
+\begin{lemma}
+\label{lem:lower-bound-dftm}
+Suppose $u$ and $v$ are two vertices of a directed graph $\vv{G}$ and ${\cal D}_{s,t}$ be the corresponding strip representation. Moreover, $v$ exceeds $u$ in some topological ordering of ${\cal D}_{s,t}$. \textsc{Reachable}$(\vv{G},u,v)$ evaluates to true if and only if \textsc{FT-Mincut}$(s,t,\{(s,u),(v,t)\}) = c_{s,t} - 1$.
+\end{lemma}
+\begin{proof}
+It is easy to observe that \textsc{FT-Mincut}$(s,t,\{(v,t)\}) = c_{s,t}-1$. Thus, \textsc{FT-Mincut}$(s,t,\{(s,u),(v,t)\}) \leq c_{s,t}-1$. We give a simple proof by failing one edge at a time. 
+
+Suppose edge $(v,t)$ is removed. As a result, new $(s,t)$-mincuts are those which contain edge $(v,t)$, i.e. keep $v$ on side of $s$. These mincuts correspond to all $(\{s,v\},t)$-mincuts in strip ${\cal D}_{s,t}$. Now, removal of edge $(s,u)$ decreases the value further if and only if there exists an $(\{s,v\},t)$-mincut in ${\cal D}_{s,t}$ that keeps $u$ on side of $t$. Thus, \textsc{FT-Mincut}$(s,t,\{(s,v),(u,t)\}) = c_{s,t} - 1$ if and only if \textsc{Mincut}$(\{s,v\},\{u,t\}) > c_{s,t}$. Using Lemma \ref{lem:lower-bound-gft}, \textsc{FT-Mincut}$(s,t,\{(s,v),(u,t)\}) = c_{s,t} - 1$ if and only if $v$ is reachable from $u$ in $\vv{G}$.
+\end{proof}
+
+Using Conjecture \ref{conj:directed-reachability-hypothesis} and Lemma \ref{lem:lower-bound-dftm} we state the following conditional lower bound.
+
+\begin{theorem}
+\label{th:lower-bound-dftm}
+Assuming Directed Reachability Hypothesis holds, any data structure that can report the value of $(s,t)$-mincut for designated $s,t \in V$ upon failure of $2$ edges in an undirected unweighted multigraph $G$ must either use ${\tilde \Omega}(n^2)$ space, or linear query time.
+\end{theorem}
+
+% \section{Conditional Lower Bound for dual-edge-insertion $(s,t)$-mincut}
+
+
+
