@@ -10,7 +10,9 @@ This Undergraduate Project was completed in two parts.
 Link - https://arxiv.org/pdf/2011.03291.pdf
 
 Let G=(V,E) be an undirected unweighted graph on n vertices and m edges. We address the problem of fault-tolerant data structure for all-pairs mincuts in G defined as follows.
+
 Build a compact data structure that, on receiving a pair of vertices s,t∈V and any edge (x,y) as query, can efficiently report the value of the mincut between s and t upon failure of the edge (x,y).
+
 To the best of our knowledge, there exists no data structure for this problem which takes o(mn) space and a non-trivial query time. We present two compact data structures for this problem.
 - Our first data structure guarantees O(1) query time. The space occupied by this data structure is O(n2) which matches the worst-case size of a graph on n vertices.
 - Our second data structure takes O(m) space which matches the size of the graph. The query time is O(min(m,ncs,t)) where cs,t is the value of the mincut between s and t in G. The query time guaranteed by our data structure is faster by a factor of Ω({\sqrt n}) compared to the best known algorithm to compute a (s,t)-mincut.
