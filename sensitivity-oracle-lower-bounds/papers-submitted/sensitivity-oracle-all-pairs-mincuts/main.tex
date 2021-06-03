@@ -1,0 +1,114 @@
+
+\documentclass[letterpaper,11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{my_style}
+\usepackage{subfiles}
+% \usepackage{authblk}
+\usepackage{float}
+\usepackage{wrapfig}
+\usepackage{microtype} %if unwanted, comment out or use option "draft"
+% \usepackage{style/lipics-addon}
+
+%\graphicspath{{./style/lipics/}}%helpful if your graphic files are in another directory
+\bibliographystyle{plainurl}
+%\usepackage[backend=biber, sorting=ynt]{biblatex}
+%\addbibresource{refs.bib}
+%\usepackage{csquotes}
+
+% Tools for theorems and restates
+\usepackage{thmtools}
+\usepackage{thm-restate}
+
+\usepackage{floatflt}
+\usepackage{graphics}
+
+
+% \bibliographystyle{alpha}
+\begin{document}
+\pagenumbering{gobble}
+\begin{titlepage}
+
+\title{Sensitivity Oracles for All-Pairs Mincuts}
+\author{
+  Surender Baswana\thanks{Department of Computer Science \& Engineering, IIT Kanpur, Kanpur -- 208016, India, sbaswana@cse.iitk.ac.in}
+  \and
+  Abhyuday Pandey\thanks{Department of Computer Science \& Engineering, IIT Kanpur, Kanpur -- 208016, India, pandey.abhyuday07@gmail.com}
+}
+\maketitle
+
+\begin{abstract}
+% Let $G=(V,E)$ be an undirected unweighted graph on $n$ vertices and $m$ edges. We address the problem of fault-tolerant data structure for all-pairs mincuts in $G$ defined as follows.
+
+% Build a compact data structure that, on receiving a pair of vertices $s,t\in V$ and any edge $(x,y)$ as query, can efficiently report the value of the mincut between $s$ and $t$ upon failure of the edge $(x,y)$.
+
+% To the best of our knowledge, there exists no data structure for this problem which takes $o(mn)$ space and a non-trivial query time. We present two compact data structures for this problem.
+% \begin{enumerate}
+% \item Our first data structure guarantees ${\cal O}(1)$ query time. The space occupied by this data structure is ${\cal O}(n^2)$ which matches the worst-case size of a graph on $n$ vertices.
+% \item
+% Our second data structure takes ${\cal O}(m)$ space which 
+% % is optimal
+% matches the size of the graph. The query time is ${\cal O}(\min(m,n c_{s,t}))$ where $c_{s,t}$ is the value of the mincut between $s$ and $t$ in $G$. The query time guaranteed by our data structure is faster by a factor of $\Omega(\min(m^{1/3},\sqrt{n}))$ compared to the best known deterministic algorithm \cite{DBLP:conf/focs/GoldbergR97a,DBLP:conf/stoc/KargerL98,DBLP:journals/corr/abs-2003-08929} to compute a $(s,t)$-mincut.
+% \end{enumerate}
+
+
+% Both these data structures can also report the resulting $(s,t)$-mincut incorporating the failure in ${\cal O}(\min(m,n c_{s,t}))$ time.
+
+{
+Let $G=(V,E)$ be an undirected unweighted graph on $n$ vertices and $m$ edges. We address the problem of sensitivity oracle for all-pairs mincuts in $G$ defined as follows.
+
+Build a compact data structure that, on receiving a pair of vertices $s,t\in V$ and failure (or insertion) of any edge as query, can efficiently report the mincut between $s$ and $t$ after the failure (or the insertion).
+
+To the best of our knowledge, there exists no data structure for this problem which takes $o(mn)$ space and a non-trivial query time.
+% Recently, Baswana, Gupta, and Knollman \cite{DBLP:conf/esa/BaswanaGK20} gave a data structure that can handle single edge insertion in ${\cal O}(n^2)$ space and ${\cal O}(1)$ query time. 
+We present the following results.
+
+\begin{enumerate}
+    \item Our first data structure occupies ${\cal O}(n^2)$ space and guarantees ${\cal O}(1)$ query time to report the value of resulting $(s,t)$-mincut upon failure (or insertion) of any edge. Moreover, the set of vertices defining a resulting $(s,t)$-mincut after the update can be reported in ${\cal O}(n)$ time which is worst-case optimal.
+    % Our data structure also subsumes the previous results of Baswana, Gupta, and Knollman \cite{DBLP:conf/esa/BaswanaGK20} which only handles an edge insertion.
+\item
+Our second data structure optimizes space at the expense of increased query time. It takes ${\cal O}(m)$ space -- which is also the space taken by $G$. The query time is ${\cal O}(\min(m,n c_{s,t}))$ where $c_{s,t}$ is the value of the mincut between $s$ and $t$ in $G$. This query time is faster by a factor of $\Omega(\min(m^{1/3},\sqrt{n}))$ compared to the best known deterministic algorithm \cite{DBLP:conf/focs/GoldbergR97a,DBLP:conf/stoc/KargerL98,DBLP:journals/corr/abs-2003-08929} to compute a $(s,t)$-mincut from scratch.
+\end{enumerate}
+
+}
+\end{abstract}
+\end{titlepage}
+\pagebreak
+\pagenumbering{arabic}
+\section{Introduction}
+\subfile{src/introduction}
+
+\section{Preliminaries} \label{sec:prelimiaries}
+\subfile{src/preliminaries}
+
+\section{Insights into \texorpdfstring{$3$}{3}-vertex mincuts} \label{sec:query-transformation}
+\subfile{src/compact-graph-query-transf}
+
+
+\vspace{-6mm}
+\section{A Compact Graph for Query Transformation}
+\vspace{-2mm}
+\subfile{src/ft-steiner-connectivity}
+\vspace{-3mm}
+\section{Compact Data Structure for Sensitivity Query} \label{sec:final-ds}
+\vspace{-2mm}
+\subfile{src/graph-contractions}
+
+
+% \section{Conclusion and Future Work}
+
+\pagebreak
+
+\bibliography{refs}
+
+
+% \pagebreak
+% \section{TODO}
+% \subfile{src/todo}
+
+\pagebreak
+\appendix
+
+\subfile{src/appendix}
+\subfile{src/extended-appendix}
+% \subfile{src/review}
+\end{document}

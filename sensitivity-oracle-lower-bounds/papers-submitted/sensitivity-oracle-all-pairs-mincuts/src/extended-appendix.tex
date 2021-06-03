@@ -1,0 +1,171 @@
+\section{Extended Preliminaries} \label{appendix:extended-preliminaries}
+
+
+\begin{definition}[Nearest mincut from $s$ to $t$]
+An $(s,t)$-mincut $(A,{\bar A})$ where $s\in A$ is called the nearest mincut from $s$ to $t$ if and only if for any $(s,t)$-mincut $(A',{\bar A'})$ where $s \in A'$, $A\subseteq A'$. The set of vertices $A$ is denoted by $s_t^N$.
+\label{def:nearest-s-t-mincut}
+\end{definition}
+
+
+The following lemma gives necessary and sufficient condition for an edge $(x,y)$ to increases the value of $(s,t)$-mincut.
+
+\begin{lemma}[\cite{DBLP:journals/mp/PicardQ82}]
+The insertion of an edge $(x, y)$ can increase the
+value of $(s,t)$-mincut by unity if and only if $x\in s_t^N$ and $y\in t_s^N$ or vice versa.
+\label{lem:edge-insertion-increases-mincut}
+\end{lemma}
+
+The following lemma exploits the undirectedness of the graph.
+\begin{lemma}
+Let $x,y,z$ be any three vertices in $G$. If $c_{x,y}>c$ and $c_{y,z}>c$, then $c_{x,z}>c$ as well. 
+\label{lem:triangle-inequality}
+\end{lemma}
+
+When there is no scope of confusion, we do not distinguish between a mincut and the set of vertices defining the mincut. 
+We now state a well-known property of cuts.
+% \begin{lemma}[Submodularity of cuts]
+% For any two subsets $A,B\subset V$, the following inequality holds.
+% \[ c(A) +c(B) \ge c(A\cup B) + c(A\cap B) \]
+% \label{lem:submodularity}
+% \end{lemma}
+\begin{lemma}[Submodularity of cuts]
+For any two subsets $A,B\subset V$, ~
+$ c(A) +c(B) \ge c(A\cup B) + c(A\cap B)$.
+\label{lem:submodularity}
+\end{lemma}
+
+
+%The proof of the following lemma exploits just the property of a $(u,v)$-mincut.
+\begin{lemma}
+Let $S \subset V$ define an $(s,t)$-mincut with $s\in S$. For any subset $S'\subset V\setminus S$ with $v\notin S'$,
+\[ 
+c(S,S') \le c(S,V\setminus (S\cup S'))
+\]
+\label{lem:subset-property-of-min-cut}
+\end{lemma}
+
+
+\subsection*{Compact Representation for all $(s,t)$-mincuts}
+
+Suppose ${\cal D}_{s,t}$ is a strip containing all $(s,t)$-mincuts and $x$ is a non-terminal in this strip. The $(s,t)$-mincut defined by ${\cal R}_s(x)$ is the nearest mincut from $\{s,x\}$ to $t$. Interestingly, each transversal in ${\cal D}_{s,t}$, and hence each $(s,t)$-mincut, is a union of the reachability cones of a subset of nodes of ${\cal D}_{s,t}$ in the direction of $s$. We now state the following Lemma that we shall crucially use.
+
+\begin{lemma}[\cite{DBLP:journals/siamcomp/DinitzV00}]
+If $x_1,\ldots, x_k$ are any non-terminal nodes in strip ${\cal D}_{s,t}$,  the union of the reachability cones of $x_i$'s in the direction of ${\mathbf s}$ defines the nearest mincut between $\{s, x_1,\ldots, x_k\}$ and $t$.
+\label{lem:reachability-cones}
+\end{lemma} 
+
+We also use the following Lemma.
+
+\begin{lemma} 
+If $A\subset V$ defines a $(s,t)$-mincut with $s\in A$, then $A$ can be merged with the terminal  node ${\mathbf s}$ in ${\cal D}_{s,t}$ to get the strip ${\cal D}_{A,t}$ that stores all those $(s,t)$-mincuts that enclose $A$.
+\label{lem:strip-A}
+\end{lemma}
+
+Another simple observation helps us describe the nearest mincuts in the strip.
+
+\begin{lemma}
+The mincuts defined by $\mathbf{s}$ and $\mathbf{t}$ are the nearest mincut from $s$ to $t$ and $t$ to $s$ respectively.
+\label{lem:nearest-mincut-strip}
+\end{lemma}
+
+
+\subsection*{Compact Representation for all Steiner Mincuts}
+It is important to note that nearest $s$ to $t$ and $t$ to $s$ mincuts are easier to identify in the connectivity carcass. The following lemma conveys the fact.
+
+\begin{lemma}[\cite{DBLP:conf/stoc/DinitzV94}]
+\label{lem:u-nearest-s-t-mincut}
+Let $s,t \in S$ such that $c_{s,t}=c_S$. Determining if a unit $u$ lies in nearest $s$ to $t$ mincut (or vice-versa) can be done using skeleton ${\cal H}_S$ and projection mapping $\pi_S$ using ${\cal O}(1)$ LCA queries on skeleton tree.
+\end{lemma}
+
+
+The size of flesh ${\cal F}_S$ is ${\cal O}(\min(m,\tilde{n}c_S))$ where $\tilde{n}$ is the number of units in ${\cal F}_S$. The size taken by skeleton is linear in the number of Steiner units. Thus, overall space taken by the connectivity carcass is ${\cal O}(\min(m,\tilde{n}c_S))$.
+
+\section{Reporting \texorpdfstring{$(s,t)$}{(s,t)}-strip for steiner mincuts} \label{appendix:xxx}
+
+Let $s$ and $t$ be any two arbitrary vertices. We shall now provide an algorithm to report $(s,t)$-strip using our data structure presented in Section 3. 
+
+We first compute the LCA of $s$ and $t$
+in the hierarchy tree ${\cal T}_G$. Let this node be $\nu$. Let $S(\nu)$ be the Steiner set associated with $\nu$, and ${\cal F}_{S(\nu)}$ be the corresponding flesh graph . Recall that we augment $\nu$ with the skeleton ${\cal H}_{S(\nu)}$ and the projection mapping of all the units present in ${\cal F}_{S(\nu)}$.
+
+Each $(s,t)$-mincut is a Steiner mincut for $S(\nu)$ that separates $s$ and $t$ as well, and the $(s,t)$-strip will precisely store these cuts. The location of these cuts follows from the structure of the skeleton ${\cal H}_{S(\nu)}$ -- each of these cuts is defined by a tree edge or a (suitable) pair of edges from the cycle that  appear on the path between the unit containing $s$ and the unit containing $t$ in ${\cal H}_{S(\nu)}$.
+Using this observation, the $(s,t)$-strip will be a quotient graph of the flesh graph ${\cal F}_{S(\nu)}$ that preserves only these cuts. 
+We shall compute it using the skeleton tree for ${\cal H}_{S(\nu)}$ and the projection mapping of various units
+(Without loss of generality we assume that the skeleton tree is rooted at the unit containing $s$). We process the units of the flesh graph ${\cal F}_{S(\nu)}$ as follows.
+
+\begin{enumerate}
+    \item Processing the Steiner units:\\
+    Let $\mu$ be any Steiner unit in the flesh graph ${\cal F}_{S(\nu)}$. Let $\omega$ be the LCA of $\mu$ and the unit containing $t$ in the skeleton tree. If $\omega$ is a tree node in the skeleton tree, we merge $\mu$ with the unit corresponding to $\omega$ in the flesh graph. If $\omega$ is a cycle node, we merge $\mu$ with the child of $\omega$ that is ancestor of $\mu$. It requires a single LCA query and a level ancestor query \cite{DBLP:journals/tcs/BenderF04} on the skeleton tree. Both of them can be accomplished in ${\cal O}(1)$ time to accomplish this task. 
+    \item Processing the non-Steiner units:\\
+    Let $\mu$ be any non-Steiner unit in the flesh graph ${\cal F}_{S(\nu)}$. Let $\pi(\mu)$ be the proper path in the skeleton to which $\mu$ is mapped. $\mu$ will appear as nonterminal in $(s,t)$-strip if and only if $\pi(\mu)$ intersects the $(s,t)$-path in the skeleton ${\cal H}_{S(\nu)}$. This requires $O(1)$ LCA queries only on the skeleton tree to determine it. If $\mu$ turns out to intersect the $(s,t)$-path, we retain it as it is in the quotient graph. Otherwise, we merge $\mu$ with
+    the same node in the quotient graph to which both the two endpoints of $\pi(\mu)$ are merged.
+\end{enumerate}
+
+Once we have the quotient graph corresponding to $(s,t)$-strip, we need to determine the direction of each edge in the quotient graph. The resulting graph will be a DAG such that each $(s,t)$-mincut appears as transversal in this DAG. We now describe the procedure of assigning the direction to any edge $(a,b)$ in the quotient graph.
+Let $(u,v)$ be the corresponding edge in the flesh graph ${\cal F}_{S(\nu)}$; if there are multiple such edges pick any one of them arbitrarily. 
+Let $u$ be compressed to $a$ and $v$ be compressed to $b$ while forming the quotient graph. 
+
+Let $P$ be the proper path to which the edge $(u,v)$ is mapped in the skeleton. $P$ is obtained by extending path $\pi(u)$ to $\pi(v)$ in a specific direction. Direct the path $P$ in arbitrary direction. Without loss of generality, assume that $\pi(u)$ is prefix of $P$ and $\pi(v)$ is suffix of the directed $P$. Note that $P$ must be intersecting the path joining the unit containing $s$ and the unit containing $t$ in the skeleton. Let one such edge be $(x,y)$
+with $x$ lying on the side of the unit containing $s$ and $y$ lying on the side of unit containing $t$. While traversing $P$, if edge $(x,y)$ is traversed along $x\rightarrow y$, we assign the edge $(a,b)$ direction $a\rightarrow b$; otherwise we assign the direction $b \rightarrow a$.
+
+
+
+
+
+% If $u$ as well as $v$
+% are steiner units, we proceed as follows.
+% Let $u$ be compressed to $a$ and $v$ be compressed to $b$ while forming the quotient graph. The path joining $u$ and $v$ in the skeleton must be intersection the path joining 
+% the unit containing $s$ and the unit containing $t$ in the skeleton. Let one such edge be $(x,y)$
+% with $x$ lying on the side of the unit containing $s$ and $y$ lying on the side of unit containing $t$. While traversing from $u$ towards $v$, if edge $(x,y)$ is traversed along $x\rightarrow y$, we assign the edge $(a,b)$ direction $a\rightarrow b$; otherwise we assign the direction $b \rightarrow a$.
+
+% Let $u$ be a nonsteiner unit and $v$ be a steiner unit. We proceed as follows. Let $u$ be compressed to $a$ and $v$ be compressed to $b$ while forming the quotient graph. Let $P$ be the proper path in the skeleton to which the edge $(u,v)$ is mapped.
+% Notice that $P$ intersects the path between unit containing $s$ and the unit containing $t$ in the skeleton. Let $(x,y)$ be one such edge with 
+%  $x$ lying on the side of the unit containing $s$ and $y$ lying on the side of unit containing $t$.
+% While traversing $P$ from the side of $v$,
+% if $(x,y)$ is traversed along $x\rightarrow y$, we assign the edge $(a,b)$ direction $b\rightarrow a$; otherwise we assign the direction $b \rightarrow a$.
+
+% towards
+% Moreover, one of the endpoints of $P$ must be $v$. 
+
+% to a proper path in the skeleton  $\pi(u)$
+
+% We pick any such edge and using its orientation relative to $s$ and $t$, we determine the direction of the edge $(a,b)$ in the $(s,t)$-strip.
+% . 
+% Let $u$ and $v$ be the units on $(s,t)$-path in the skeleton ${\cal H}_{S(\nu)}$ corresponding to $a$ and $b$ respectively. Using ideas very similar to those used for computing one side of the  $(s,t)$-mincut, we can determine the relative ordering of $u$ and $v$ with respect to $s$ and $t$ which will help us determine the direction of edge $(a,b)$ as in the $(s,t)$-strip as well. [This needs more details.]
+
+%If both $u$ and $v$ are mapped to the a single pair $(s',t')$, we can use the topological ordering stores in our data structure. Otherwise, we determine whether the proper path corresponding to $u$ is extendible to the paththe extendability of  This task can be accomplished easily
+
+\section{Edge insertion on \texorpdfstring{${\cal O}(n^2)$}{quadratic} space data structure} \label{appendix: edge-insertion-n^2-space-ds}
+
+We shall now present an algorithm 
+to determine using our ${\cal O}(n^2)$ size data structure whether insertion of any edge increases the mincut between any pair of vertices. It follows from Lemma \ref{lem:edge-insertion-increases-mincut} that in order to accomplish this objective in ${\cal O}(1)$ time, it suffices if we can determine whether $x\in s^N_t$ in ${\cal O}(1)$ time for any $s,x,t\in V$. 
+
+Let $\nu$ be the LCA of $s$ and $t$ in the hierarchy tree ${\cal T}$. Let ${\mathbf s}$,
+${\mathbf t}$, and ${\mathbf x}$ be the units in the flesh graph ${\cal F}_{S(\nu)}$ for $s,t$, and $x$ respectively. Recall that we do not store ${\cal F}_{S(\nu)}$ at $\nu$. Rather, we just store only the units of the flesh, their projection mapping, and the skeleton associated with ${S(\nu)}$ at $\nu$.
+
+Observe that $x$ belongs to $s^N_t$ if and only if ${\mathbf x}$ gets mapped to the source node in
+the $(s,t)$-strip. Refer to the algorithm given in the previous section for the construction of the $(s,t)$-strip. As a result, the following conditions in terms of the skeleton tree at $\nu$ capture the necessary and sufficient condition for $x\in s^N_t$. 
+
+\begin{itemize}
+    \item If ${\mathbf x}$ is a Steiner unit:\\
+    $x\in s^N_t$ if and only if LCA of ${\mathbf x}$
+    and ${\mathbf s}$ in the skeleton tree is ${\mathbf s}$. 
+    \item If ${\mathbf x}$ is a non-Steiner unit:\\
+    Let ${\mathbf x}$ be mapped to path $(\omega_1,\omega_2)$ in skeleton ${\cal H}_{S(\nu)}$. 
+    $x\in s^N_t$ if and only if LCA of $ {\omega_1}$
+    and ${\mathbf s}$ as well as LCA of ${\omega_2}$
+    and ${\mathbf s}$ in the skeleton tree is ${\mathbf s}$. 
+\end{itemize}
+So it just requires a couple of LCA queries on the skeleton tree to determine if $x\in s^N_t$.
+We can thus state the following theorem.
+
+\begin{theorem}
+For any undirected and unweighted graph on $n$ vertices, there exists an ${\cal O}(n^2)$ size data structure that can answer 
+any sensitivity query for all-pairs mincuts in ${\cal O}(1)$ time.
+\end{theorem}
+
+
+
+
+
+
+

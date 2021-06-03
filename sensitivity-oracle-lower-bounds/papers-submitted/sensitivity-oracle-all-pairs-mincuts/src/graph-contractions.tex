@@ -1,0 +1,129 @@
+
+In the following section we present our ${\cal O}(m)$ space sensitivity data structure.
+
+
+\subsection{\texorpdfstring{An ${\cal O}(m)$}{Linear} size data structure}
+
+Consider any node $\mu$ in the hierarchy tree \cite{DBLP:journals/siamcomp/KatzKKP04} ${\cal T}_G$. We associate a compact graph with node $\mu$, say $G_\mu=(V_\mu,E_\mu)$ with the following properties. 
+
+\begin{enumerate}
+    \item $G_\mu$ is a quotient graph of $G$ with $S(\mu)\subseteq V_\mu$
+    \item  For each $s,t\in S(\mu)$ and a set of edges $E_y$ incident on vertex $y\in V$, there exists a set of edges $E_{y'}$ incident on vertex $y'\in V_\mu$ such that $E_y$ lies in a $(s,t)$-mincut in $G$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_\mu$.
+\end{enumerate}
+
+For the root node $r$, $G_r=G$ and the two properties hold trivially.
+We traverse ${\cal T}_G$ in a top down fashion to construct $G_\mu$ for each node $\mu \in {\cal T}_G$ as follows. Let $\mu$ be the parent of $\mu'$ in ${\cal T}_G$. Assume we have graph $G_{\mu}$ already built with the properties mentioned above. Thus, $S(\mu)\subseteq V_\mu$. Using Observation \ref{obs:maximal-subset-subtree} we know that $S(\mu')$ is a maximal subset of $S(\mu)$ with connectivity strictly greater than that of $S(\mu)$. Using Theorem \ref{thm:edge-correspondence} with $S=S(\mu)$ and $S'=S(\mu')$, it can be shown that there exists a graph $G_{S(\mu')}$ 
+% such that -- for each $s,t \in S(\nu)$ and set of edges $E_y$ incident on vertex $y\in V_{\mu}$ there exists a set of edges $E_{y'}$ incident on vertex $y'\in V_\nu$ such that $E_y$ lies in a $(s,t)$-mincut in $G_\mu$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_\nu$. This also implies that the above $2$ properties will hold for $G_\nu$.
+that satisfies both the properties above. We define $G_{\mu'}$ to be $G_{S(\mu')}$.
+The graph $G_{\mu'}$ itself
+can be obtained using the $2$-step contraction procedure described in Section \ref{sec:compact-graph}.
+
+
+% We use Property 1 and Observation \ref{obs:maximal-subset-subtree} to build the graph $G_\nu$ for the subset $S(\nu)$ from $G_\mu$ following the procedure described in Section \ref{sec:compact-graph}. Using Theorem \ref{thm:edge-correspondence}, it follows that $G_\nu$ also satisfies Property 2.
+
+Our compact data structure will be ${\cal T}_G$ where each node $\mu$ will be augmented with the connectivity carcass of $S(\mu)$ in graph $G_\mu$. 
+
+\subsubsection*{Query algorithm for edge-containment query}
+
+A query \textsc{Edge-Contained}$(s,t,E_y)$ can be answered by the data structure as follows. We start from the root node of ${\cal T}_G$ and traverse the path to the node $\nu$ which is the LCA of $s$ and $t$. Consider any edge $(\mu,\mu')$ on this path, where $\mu$ is parent of $\mu'$. We modify the query \textsc{Edge-Contained}$(s,t,E_y)$ in $G_{\mu}$ to an equivalent query \textsc{Edge-Contained}$(s,t,E_{y'})$ in $G_{\mu'}$ as we move to $\mu'$ (see Theorem \ref{thm:edge-correspondence}). This computation can be carried out in time linear in size of flesh at node $\mu$ using Lemma \ref{lem:linear-time-qt}. We stop when $\mu = \nu$. Observe that $c_{s,t} = c_{S(\nu)}$ (using Observation \ref{obs:(s,t)-mincut-lca}) and thus must be separated by some Steiner mincut for $S(\nu)$.
+Thus we compute the strip ${\cal D}_{s,t}$ at node $\nu$ and answer the edge-containment query using Lemma \ref{lem:E_y-edges-same-side}. If the query evaluates to true, we compute a $(s,t)$-mincut in $G_\nu$ using ${\cal D}_{s,t}$ that contains the required set of edges at this level. We retrace the path from $\nu$ to the root of ${\cal T}_G$.
+% A $(s,t)$-mincut containing the edges in $E_y$ can be obtained as follows. We start from the LCA of $s$ and $t$ in ${\cal T}_G$, say $\nu$. We construct the strip ${\cal D}_{s,t}$ and obtain a $(s,t)$-mincut that contains the required set of edges. We traverse the path from $\nu$ to the root of ${\cal T}_G$.
+Consider any edge $(\mu,\mu')$ on this path where $\mu$ is parent of $\mu'$. We find a corresponding $(s,t)$-mincut in graph $G_\mu$ from the $(s,t)$-mincut of $G_{\mu'}$ using Lemma \ref{lem:mincut-qt}. We stop at the root node and report the set of vertices defining the $(s,t)$-mincut in $G$.
+
+A \textsc{Ft-Mincut}$(s,t,(x,y))$ can be accomplished using the query \textsc{Edge-Contained}$(s,t,\{(x,y)\})$ and the old value of $(s,t)$-mincut (using Fact \ref{fact:(x,y)-lies-in-(s,t)-mincut}).
+
+\subsubsection*{Query algorithm for nearest mincut queries}
+
+A query \textsc{Check-Nearest-Mincut}$(s,t,y)$ can be answered using Algorithm \ref{algo:y-lies-in-nearest-r-s-mincut} on the graph $G$ with $S=V$. A naive implementation of the algorithm will however be inefficient. This is because there can be ${\cal O}(c_{s,t})$ internal nodes from the root node to $LCA(s,t)$ in hierarchy tree ${\cal T}_G$. Thus, the algorithm may invoke ${\cal O}(n)$ instances of edge-containment query which will give an ${\cal O}(\min(mc_{s,t},nc_{s,t}^2))$ time algorithm for accomplishing this query. This query time is worse than the best known deterministic static algorithm to compute a $(s,t)$-mincut. 
+
+We crucially exploit the following fact from Algorithm \ref{algo:y-lies-in-nearest-r-s-mincut}. If $\textsc{Edge-Contained}(s,t,E_y)$ (Line $14$) in $G_\nu$ evaluates to True at some internal node, then we can conclude that $y \not \in s_t^N$ in $G$. Thus, the query can possibly be true only if $\textsc{Edge-Contained}(s,t,E_y)$ in $G_\nu$ is False for all possible levels. Algorithm \ref{algo:check-nearest-mincut-efficient} gives an efficient implementation of the \textsc{Check-Nearest-Mincut} query. The following lemma gives proof of correctness for the algorithm.
+
+\begin{lemma}
+Algorithm \ref{algo:check-nearest-mincut-efficient} determines if $y$ lies in nearest $s$ to $t$ mincut in ${\cal O}(\min(m,nc_{s,t}))$ time.
+\end{lemma}
+\begin{proof}
+The fact that the run-time of algorithm is ${\cal O}(\min(m,nc_S))$ follows from analysis for edge-containment query (see Appendix \ref{appendix:size-time-analysis-compact-ds}). Thus, we shall focus on the correctness of algorithm.
+
+Consider the nodes $\mu$ and its parent $\lambda = parent(\mu)$ on Line $8$. Observe that $E_y$ lies in a $(s,t)$-mincut in $G_\lambda$ if and only if $E_{y'}$ lies in a $(s,t)$-mincut in $G_\mu$ (from Lemma \ref{lem:query-transformation}). Suppose $E_\mu'$ denotes one-side of the inherent partition of $y'$ in $G_\mu$ such that $E_{y'}\cap E_\mu' \neq \varnothing$. Observe that if $E_{y'}$ lie in a $(s,t)$-mincut then $E_{y'} \subseteq E_\mu'$ (from Lemma \ref{lem:AUB-contains-E_y} and Lemma \ref{lem:E_y-edges-same-side}). In other words, if $E_{y'}$ lie in a $(s,t)$-mincut then $E_{y'}$ must be in one-side of the inherent partition of $y'$. Note that both sides of inherent partition of $y'$ can be determined from $G_\mu$, independent of the query procedure.
+
+% \begin{enumerate}
+%     \item If $E_{y'} \subset E'$ and \textsc{Edge-Contained}$(G_\lambda,s,t,E_y)$ is False, then \textsc{Edge-Contained}$(G_\mu,s,t,E')$ is False.
+%     \item If $E_{y'} \not\subset E'$ then \textsc{Edge-Contained}$(G_\lambda,s,t,E_y)$ is False (from Lemma \ref{lem:AUB-contains-E_y} and Lemma \ref{lem:E_y-edges-same-side}).
+%     \item If \textsc{Edge-Contained}$(G_\lambda,s,t,E_y)$ is True, then $y \not\in s_t^N$ in G (from Lemma \ref{lem:y-in-nearest-r-s-mincut}).
+% \end{enumerate}
+Suppose $\ell = LCA(s,t)$ is the node at which Line $3$-$4$ is being executed.
+
+Suppose $y \not \in s_t^N$ in $G$. In this case, one of the following must happen -- ~$(i)$ $y \not \in s_t^N$ in $G_\ell$ or ~$(ii)$ \textsc{Edge-Contained}$(s,t,E'_\mu)$ evaluates to true for some node $\mu$ in the path from root to $\ell$. Clearly if $(i)$ is true, Algorithm \ref{algo:check-nearest-mincut-efficient} returns false (Line $3$). Thus, assume $(i)$ is false and $(ii)$ is true. Suppose $\mu$ is one such node at which \textsc{Edge-Contained}$(s,t,E'_\mu)$ evaluates to true. Consider the execution of procedure \textsc{Check-Nearest-Mincut} at level $\mu$. At Line $12$, $E_{y'}\subseteq E'_\mu$. Thus, if $E_\mu'$ lies in some $(s,t)$-mincut then $E_{y'}$ must also lie in some $(s,t)$-mincut. Hence, $\textsc{Edge-Contained}(s,t,E_{y'})$ must also be true. Observe that in each subsequent recursive call of this procedure, that is from $child(\mu)$ to $\ell$, Line $9$ will never be true (from an earlier observation in this proof). Thus, the set of edges $E_y$ we receive in the final call (level $\ell$) of this procedure is simply the set of edges obtained from repeated query-transformation on $E_{y'}$ (at level $\mu$). In other words, if $E_{y'}$ (at level $\mu$) lie in a $(s,t)$-mincut in $G_\mu$ then $E_{y}$ (at level $\ell$) lie in a $(s,t)$-mincut in $G_\ell$. Thus, \textsc{Edge-Contained}$(s,t,E_y)$ (at Line $3$) evaluates to true. As a result, our algorithm will return false.
+
+
+Suppose $y \in s_t^N$ in $G$. In this case, $y \in s_t^N$ in $G_\ell$ (from Lemma \ref{algo:y-lies-in-nearest-r-s-mincut}). Moreover, \textsc{Edge-Contained}$(G_\mu,s,t,E'_\mu)$ evaluates to false for all possible levels $\mu$ from root to $parent(\ell)$. Thus, \textsc{Edge-Contained} query at level $\ell$ on Line 3 will evaluate to false. Thus, our algorithm will return true.
+
+\end{proof}
+
+\begin{algorithm}%[H]
+    \caption{Check if $y$ lies in nearest $s$ to $t$ mincut (efficient)}
+    \label{algo:check-nearest-mincut-efficient}
+    \begin{algorithmic}[1] % The number tells where the line numbering should start
+        \Procedure{Check-Nearest-Mincut}{$\mu,s,t,y,E_{y}$}
+        \If{$\mu = LCA(s,t)$}
+        \IIf{$y\not \in s_t^N$ in $G_\mu$ \textbf{or} \textsc{Edge-Contained}$(s,t, E_y)$} \textbf{return} \textbf{False}
+        \State \textbf{return} \textbf{True}
+        \EndIf
+        \State $\nu \gets$ Node to which $s,t$ are mapped in skeleton ${\cal H}_{S(\mu)}$
+        \IIf{$y$ is mapped to $\nu$} \textbf{return} \textsc{Check-Nearest-Mincut}$(\nu,s,t,y,E_y)$
+        \State $E_{y'} \gets$ Query-Transformation on $E_y$ from $G_{parent(\mu)}\rightarrow G_\mu$
+        \If{$E_{y'}$ does not lie in one-side of inherent partition of $y'$}
+        \State $E_{y'} \gets$ one side of inherent partition of $y'$
+        \EndIf
+        \State \textbf{return} \textsc{Check-Nearest-Mincut}$(\nu,s,t,y',E_{y'})$
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+
+An \textsc{in-Mincut}$(s,t,(x,y))$ query can be reported using four instances of \textsc{Check-Nearest-Mincut} queries (from Lemma \ref{lem:edge-insertion-increases-mincut}) and the old value of $(s,t)$-mincut.
+
+
+
+We can thus state the following theorem.
+
+\begin{theorem}
+Given an undirected unweighted multigraph $G=(V,E)$ on $n=|V|$ vertices and $m=|E|$ edges, there exists a data structure of ${\cal O}(m)$ size that can report the value of $(s,t)$-mincut for any $s,t\in V$ upon failure (or insertion) of any edge. The time taken to answer this query is ${\cal O}(\min(m,nc_{s,t}))$.
+\label{thm:O(m)-size-data-structure}
+\end{theorem}
+
+The detailed analysis of the query time of edge-containment query and space taken by the data structure stated in Theorem \ref{thm:O(m)-size-data-structure} is given in Appendix \ref{appendix:size-time-analysis-compact-ds}.
+
+% \begin{algorithm}%[H]
+%     \caption{Memoize Edge-Containment Queries}
+%     \label{algo:memoize-edge-containment-query}
+%     \begin{algorithmic}[1] % The number tells where the line numbering should start
+%         \State $L \gets$ empty \Comment{ Empty List}
+%         \State Initialize $memo$ to \textbf{True} \Comment{ Will Store Memoized Queries}
+%         \State Initialize $E_y$ at root.
+%         \For{$\mu$ in path from root to $LCA(s,t)$}
+%         \State $E_{y'} \gets$ Query transformation from $E_y$ \Comment{ Using Theorem \ref{thm:edge-correspondence}}
+%         \If{$\mu = LCA(s,t)$}
+%          \If{\textsc{Edge-Contained}$(s,t,E_{y'})$ is \textbf{False}}
+%         \State $memo[\nu] =$ \textbf{False} $\forall \nu \in L$
+%         \EndIf
+%         \EndIf
+%         \If{$E_{y'}$ is on one side of inherent partition of $y'$}
+%         \State $L.\text{add}(\mu)$
+%         \State $E_y \gets$ $E_{y'}$
+%         \Else 
+%         \State $memo[\nu] =$ \textbf{False} $\forall \nu \in L$
+%         \State $L \gets $ empty
+%         \State $E_y \gets$ one side of inherent partition of $y'$ 
+%         \EndIf
+%         \EndFor
+%     \end{algorithmic}
+% \end{algorithm}
+
+
+% \begin{lemma}
+% Suppose $\textsc{Edge-Contained}(G,r,s,E_y)$ and $\textsc{Edge-Contained}(G_\nu,r,s,E_{y'})$ be two edge-containment queries at root node and internal node (not root node) $\nu$ respectively. If  $\textsc{Edge-Contained}(G,r,s,E_{y})$ evaluates to False, then $\textsc{Edge-Contained}(G_\nu,r,s,E_{y'})$ also evaluates to False.
+% \end{lemma}
+% \begin{proof}
+% If $y'$ is a steiner unit, $\textsc{Edge-Contained}(G_\nu,r,s,E_{y'})$ is False. So, we shall restrict our attention to the case when $y'$ is a stretched unit in ${\cal F}_\nu$.
+% \end{proof}

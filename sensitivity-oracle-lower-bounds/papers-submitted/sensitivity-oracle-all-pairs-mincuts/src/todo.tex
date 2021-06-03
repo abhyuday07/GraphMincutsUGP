@@ -1,0 +1,52 @@
+{\color{blue} To do list:
+\begin{enumerate}
+% \item What is the best deterministic bound on computing
+% $(s,t)$-mincut in an undirected unweighted graph ? We need this information to show the nontriviality of the query time of our second data structure.\\
+
+% Case 1: $m>nv$
+
+% 1. $nm^{2/3}v^{1/6} > n^{5/3}v^{5/6}$, therefore, 
+% $\frac{nv}{n^{5/3}v^{5/6}} \leq \frac{1}{n^{1/2}}$
+
+% 2. $n^{3/2}m^{1/2} > n^{2}v^{1/2}$, therefore, 
+% $\frac{nv}{n^{2}v^{1/2}} \leq \frac{1}{n^{1/2}}$
+
+% Case 2: $m<nv$
+
+% 1. $nm^{2/3}v^{1/6} > n^{5/6}m^{5/6}$, therefore, 
+% $\frac{m}{n^{5/6}m^{5/6}} \leq \frac{1}{n^{1/2}}$
+
+% 2. $\frac{m}{n^{3/2}m^{1/2}} \leq \frac{1}{n^{1/2}}$
+
+% Therefore, it gives a $\sqrt{n}$ factor of improvement in query time, using the best algorithms.
+
+\item @Abhyuday: Now I fully agree with you that if we are able to build our data structure(s) in $O(mF)$ time, it will add more value to our results. So we must strive to accomplish this goal and provide all details in Appendix.
+\item What is the best lower bound that we can achieve on the fault tolerant all-pairs mincuts data structures for a graph with edge capacities polynomial in $n$ if the desired query time is $O(1)$ or $O($polylog$(n))$?
+\item Distributed memory and parallelize query.
+\item Time taken to report a mincut in 1 and 2.
+\item Proof of E.1 uses the construction of strip corresponding to subbunch in 2.2. Try to refer it somehow.
+\item Streamline Appendix G.
+\item Add other fault tolerant data structures.
+\item multigraph.
+\end{enumerate}}
+
+
+{
+
+\color{brown} Doubts
+\begin{enumerate}
+    \item DKL figure issue.
+    \item Resolve Strip Lemma (ii) part.
+    \item Path $(\nu_1,\nu_2)$ and $(\nu_3,\nu_4)$ extendable intuition?
+\end{enumerate}
+}
+
+% Suppose $u$ is a stretched unit in the flesh ${\cal F}_S$. Suppose ${\cal R}_1$ and ${\cal R}_2$ denote its two reachability cones. Each of ${\cal R}_1$,${\cal R}_2$,${\cal R}_1\setminus \{u\}$ and ${\cal R}_2 \setminus \{u\}$ define a steiner mincut. This can be proved by showing that no coherent path can interesect any of the above sets twice.
+
+% Since ${\cal R}_1$ is a steiner mincut, it must correspond to some subbunch, say ${\cal B}$, in the skeleton ${\cal H}_S$. Suppose the path to which $u$ is mapped in the skeleton be $P(\nu_1,\nu_2)$. We claim that the subcactus rooted at $\nu_1$ wrt to path $P(\nu_1,\nu_2)$ is the minimal cut in the skeleton that represents this subbunch. The reason for the same is as follows. Suppose ${\cal H}_S({\cal B})\subset {\cal H}_S(\nu_1)$. Then $u$ must appear as a non-terminal in the strip representing this subbunch (because ${\cal R}_1\setminus \{u\}$ must be from the same subbunch). However ${\cal H}_S({\cal B})\subset {\cal H}_S(\nu_1)$, therefore $u$ cannot be mapped to any of the edges corresponding to cut ${\cal H}_S({\cal B})$. Thus, we arrive at a contradiction.
+
+% \begin{lemma}
+% If a stretched unit $u$ is mapped to path $P(\nu_1,\nu_2)$ in the skeleton, then the set of terminals in the reachability cones ${\cal R}_1$ and ${\cal R}_2$ coincide with the subbunch ${\cal H}_S(\nu_1)$ and ${\cal H}_S(\nu_2)$.
+% \end{lemma}
+
+% Now, we can easily derive Lemma 17. Suppose $u'$ be any stretched unit, such that $u'\in {\cal R}_1$. Moreover, let ${\cal R}_1'$ and ${\cal R}_2'$ denote the reachability cones of $u'$ such that ${\cal R}_1'\subseteq {\cal R}_1$ and ${\cal R}_2 \subseteq {\cal R}_2'$. Observe that this implies that the $\nu_3 \in {\cal H}_S(\nu_1)$ and $\nu_2 \in {\cal H}_S(\nu_4)$.

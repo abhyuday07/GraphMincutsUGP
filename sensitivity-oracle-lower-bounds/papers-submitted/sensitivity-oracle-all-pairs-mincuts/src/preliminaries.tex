@@ -1,0 +1,509 @@
+
+%\subsection{Notations and lemmas on mincuts}
+Let $G=(V,E)$ be an undirected unweighted multigraph without self-loops. To contract (or compress) a set of vertices $U\subseteq V$ means to replace all vertices in $U$ by a single vertex $u$, delete all edges with both endpoints in $u$ and for every edge which has one endpoint in $U$, replace this endpoint by $u$. A graph obtained by performing a sequence of vertex contractions is called a {\em quotient} graph of $G$.
+
+
+For any given $A,B\subset V$ such that $A\cap B=\emptyset$, we use $c(A,B)$ to denote the number of edges with one endpoint in $A$
+and another in $B$. Overloading the notation, we shall use $c(A)$ for $c(A,\bar{A})$.
+
+\begin{definition}[$(s,t)$-cut]
+A subset of edges whose removal disconnects $t$ from $s$ is called a $(s,t)$-cut. An $(s,t)$-mincut is a $(s,t)$-cut of minimum cardinality. 
+\label{def:(u,v)-cut}
+\end{definition}
+
+\begin{definition}[set of vertices defining a cut]
+A subset $A\subset V$ is said to define a ($s,t$)-cut if $s\in A$ and $t\notin A$. The corresponding cut is denoted by cut$(A,\bar{A})$ or more compactly cut$(A)$.  
+\label{def:set-definiting-a-cut}
+\end{definition}
+
+Detailed Preliminaries for Section \ref{sec:query-transformation} and beyond can be found in Appendix \ref{appendix:extended-preliminaries}.
+
+\subsection{Compact representation for all \texorpdfstring{$(s,t)$}{(s,t)}-mincuts}
+Dinitz and Vainshtein \cite{DBLP:journals/siamcomp/DinitzV00} showed that there exists a quotient graph of $G$ that compactly stores all $(s,t)$-mincuts, called strip ${\cal D}_{s,t}$. The 2 node to which $s$ and $t$ are mapped in ${\cal D}_{s,t}$ are called the terminal nodes, denoted by ${\bf s}$ and ${\bf t}$ respectively. Every other node is called a non-terminal node. We now elaborate some interesting properties of the strip ${\cal D}_{s,t}$.
+% by Dinitz and Vainshtein \cite{DBLP:journals/siamcomp/DinitzV00}
+
+ Consider any non-terminal node $v$, and let $E_v$ be the set of edges incident on it in ${\cal D}_{s,t}$. There exists a unique partition, called {\em inherent partition}, of $E_v$ into 2 subsets of equal sizes. These subsets are called the 2 sides of the inherent partition of $E_v$. 
+ %Dinitz and Vainshtein established the following very interesting property of this inherent partition.
+If we traverse ${\cal D}_{s,t}$ such that upon visiting any non-terminal node using an edge from one side of its inherent partition, the edge that we traverse while leaving it belong to the other side of the inherent partition, then no node will be visited again. Such a path is called a {\em coherent} path in ${\cal D}_{s,t}$. Furthermore, if we begin traversal from a non-terminal node $u$ along one side of its inherent partition and keep following a coherent path we are bound to reach the terminal ${\bf s}$ or terminal ${\bf t}$. So the two sides of the inherent partitions can be called side-${\bf s}$ and side-${\bf t}$ respectively.
+It is because of these properties
+that the strip ${\cal D}_{s,t}$ can be viewed as an undirected analogue of a directed acyclic graph with a single source and a single sink. 
+
+A cut in the strip ${\cal D}_{s,t}$ is said to be a \textit{transversal} if each coherent path in ${\cal D}_{s,t}$ intersects it at most once. The following lemma provides the key insight for representing all $(s,t)$-mincuts through the strip ${\cal D}_{s,t}$.
+\begin{lemma}[\cite{DBLP:journals/siamcomp/DinitzV00}]
+    $A\subset V$ defines a $(s,t)$-mincut if and only if $A$ is a transversal in ${\cal D}_{s,t}$.
+    \label{lem:mincut-transversal}
+\end{lemma}
+
+The following lemma can be viewed as a corollary of Lemma \ref{lem:mincut-transversal}.
+
+\begin{lemma}
+A $(s,t)$-mincut contains an edge $(x,y)$ if and only it appears in strip ${\cal D}_{s,t}$.
+\label{lem:E_y-edges-same-side}
+\end{lemma}
+
+% \begin{lemma} 
+% If $A\subset V$ defines a $(s,t)$-mincut with $s\in A$, then $A$ can be merged with the terminal  node ${\mathbf s}$ in ${\cal D}_{s,t}$ to get the strip ${\cal D}_{A,t}$ that stores all those $(s,t)$-mincuts that enclose $A$.
+% \label{lem:strip-A}
+% \end{lemma}
+
+% Another simple observation helps us describe the nearest mincuts in the strip.
+
+% \begin{lemma}
+% The mincuts defined by $\mathbf{s}$ and $\mathbf{t}$ are the nearest mincut from $s$ to $t$ and $t$ to $s$ respectively.
+% \label{lem:nearest-mincut-strip}
+% \end{lemma}
+
+Consider any non-terminal node $x$. Let ${\cal R}_s(x)$ be the set of all the nodes $y$ in ${\cal D}_{s,t}$ that are reachable from $x$ through coherent paths that originate from the side-${\bf s}$ of the inherent partition of $x$ -- notice that all these paths will terminate at ${\bf s}$. 
+It follows from the construction that ${\cal R}_s(x)$ defines a transversal in
+${\cal D}_{s,t}$. We call ${\cal R}_s(x)$ the \textit{reachability cone} of $x$ towards $s$. It follows from the definition that each transversal in the strip ${\cal D}_{s,t}$ is defined by union of reachability cones in the direction of ${\mathbf s}$ for a set of non-terminals.
+% The $(s,t)$-mincut defined by ${\cal R}_s(x)$ is the nearest mincut from $\{s,x\}$ to $t$. 
+% Interestingly, each transversal in ${\cal D}_{s,t}$, and hence each $(s,t)$-mincut, is a union of the reachability cones of a subset of nodes of ${\cal D}_{s,t}$ in the direction of $s$. We now state the following Lemma that we shall crucially use.
+
+% \begin{lemma}[\cite{DBLP:journals/siamcomp/DinitzV00}]
+% If $x_1,\ldots, x_k$ are any non-terminal nodes in strip ${\cal D}_{s,t}$,  the union of the reachability cones of $x_i$'s in the direction of ${\mathbf s}$ defines the nearest mincut between $\{s, x_1,\ldots, x_k\}$ and $t$.
+% \label{lem:reachability-cones}
+% \end{lemma} 
+\subsection{Compact representation for all Global mincuts}
+
+% Dinitz, Karzanov, and Lomonosov \cite{DL76} showed that there exists a cactus graph ${\cal H}_V$ of size $O(n)$ that compactly stores all global mincuts of $G$. A \textit{cactus graph} is a tree-like graph such that two simple cycles intersect at not more than one node. For details, see Appendix \ref{appendix:cactus}.
+
+
+% Let $c_V$ denote the value of the global mincut of the graph $G$.
+% Dinitz, Karzanov, and Lomonosov \cite{DL76} showed that there exists a graph ${\cal H}_V$ of size ${\cal O}(n)$ that compactly stores all global mincuts of $G$. 
+% %In order to maintain the distinction between the two graphs,
+% Henceforth, we shall use nodes and structural edges for vertices and edges of ${\cal H}_V$ respectively. There exists a projection mapping $\pi:V(G)\rightarrow V({\cal H}_V)$ assigning a vertex of graph $G$ to a node in graph ${\cal H}_V$. In this way, any cut $(A,{\bar A})$ in cactus ${\cal H}_V$ is associated to a cut $(\pi^{-1}(A),\pi^{-1}(\bar A))$ in the original graph $G$.
+% The graph ${\cal H}_V$ has a nice tree-like structure with the following properties.
+
+% {\color{blue}
+Dinitz, Karzanov, and Lomonosov \cite{DL76} showed that there exists a graph ${\cal H}_V$ of size ${\cal O}(n)$ that compactly stores all global mincuts of $G$. 
+In order to maintain the distinction between $G$ and ${\cal H}_V$,
+henceforth, we shall use nodes and structural edges for vertices and edges of ${\cal H}_V$ respectively.  Each vertex in $G$ is mapped to a unique node in ${\cal H}_V$.
+%There exists a projection mapping $\pi:V(G)\rightarrow V({\cal H}_V)$ assigning a vertex of graph $G$ to a node in graph ${\cal H}_V$. In this way, any cut $(A,{\bar A})$ in cactus ${\cal H}_V$ is associated to a cut $(\pi^{-1}(A),\pi^{-1}(\bar A))$ in the original graph $G$.
+The graph ${\cal H}_V$ has a nice tree-like structure with the following properties.
+% }
+\begin{enumerate}
+    \item Any two distinct simple cycles of ${\cal H}_V$ have at most one node in common. So each structural edge of ${\cal H}_V$ belongs to at most one simple cycle. As a result, each cut in ${\cal H}_V$ either corresponds to a tree edge or a pair of cycle edges in the same cycle.
+    \item Let $c_V$ denote the value of the global mincut of the graph $G$. If a structural edge belongs to a simple cycle, it is called a \textit{cycle edge} and its weight is $\frac{c_V}{2}$. Otherwise, the structural edge is called a \textit{tree edge} and its weight is $c_V$.
+    \item For any cut in the cactus ${\cal H}_V$, the associated cut in graph $G$ is a global mincut. Moreover, any global mincut in $G$ must have at least one associated cut in ${\cal H}_V$.
+\end{enumerate}
+
+% Let $\nu$ and $\mu$ be any two nodes in the cactus ${\cal H}_V$. If they belong to the same cycle, say $c$, there are two paths between them on the cycle $c$ itself - their union forms the cycle itself. Using the fact that any two cycles in  ${\cal H}_V$ can have at most one common node, it can be seen that these are the only paths between $\nu$ and $\mu$. Using the same fact, if $\nu$ and $\mu$ are two arbitrary nodes in the cactus, there exists a unique path of cycles and tree edges between these two nodes. Any global mincut that separates $\nu$ from $\mu$ must correspond to a cut in this path.
+
+% {\color{blue} 
+Property $1$ implies that there exists a unique path of cycles and tree edges between any two arbitrary nodes $\nu$ and $\mu$. Any global mincut separating $\nu$ from $\mu$ corresponds to a cut in this path.
+
+% }
+% \subsection*{Construction of $(s,t)$-strip from cactus}
+% \label{sec:construction-strip-cactus}
+% Suppose $s,t \in V$ are two vertices such that $c_{s,t}$ is same as the global mincut value. 
+% So, each transversal of strip ${\cal D}_{s,t}$ corresponds to a global mincut that separates $s$ and $t$. Recall that cactus ${\cal H}_V$ stores all global mincuts. So we just need to contract it suitably so that only those cuts remain that separate $s$ and $t$. For this purpose,
+% we compute the path of cycles and tree edges between the nodes corresponding to $s$ and $t$ respectively. We compress each of the subcactus rooted to this path to a single vertex. The resultant graph we obtain will be the strip ${\cal D}_{s,t}$. The inherent partition of all the non-terminal units can be determined using the endpoints of the edges in the path.
+
+% \paragraph{Tree representation for cactus:} We shall now show that ${\cal H}_V$ can be represented as a tree structure. This tree structure was also used by Dinitz and Westbrook in \cite{DBLP:journals/algorithmica/DinitzW98}. This representation will simplify our analysis on the cactus.
+
+% We now provide the details of the graph structure $T({\cal H}_V)$ that represents ${\cal H}_V$. The vertex set of $T({\cal H}_V)$ consists of all the cycles and the nodes of the cactus. For any node $\nu$ of the cactus ${\cal H}_V$, let $v(\nu)$ denote the corresponding vertex in $T({\cal H}_V)$. Likewise, for any cycle $\pi$ in the cactus, let $v(\pi)$ denote the corresponding vertex in $T({\cal H}_V)$. We now describe the edges of  $T({\cal H}_V)$. 
+% For any two $(\nu_1,\nu_2) \in {\cal H}_V$ having an edge between them, we add an edge between $v(\nu_1)$ and $v(\nu_2)$ as well.
+% Let $\nu$ be any node of ${\cal H}_V$ and let there be $j$ cycles - $\pi_1,\ldots,\pi_j$ that pass through it. We add an edge between $v(\nu)$ and $v(\pi_i)$ for each $1\le i\le j$. Moreover, for each vertex $\nu(\pi)$ in $T{({\cal H}_V)}$ we store all its neighbours in the order in which they appear in the cycle $\pi$ in ${\cal H}_V$. This is done to ensure that information about the order of vertices in each cycle is retained. This complete the description of $T({\cal H}_V)$. 
+% % For a better understanding, the reader may refer to Figure \ref{fig:transform-cactus-to-tree} that succinctly depicts the transformation carried out at a node $\nu$ of the cactus graph to build the corresponding graph structure $T({\cal H}_V)$. 
+
+% The fact that the graph structure $T({\cal H}_V)$ is a tree follows from the property that any two cycles in a cactus may have at most one vertex in common. Let us root $T({\cal H}_V)$ at any arbitrary vertex, say $v(\nu)$, for some node $\nu$ of ${\cal H}_V$. Since each cycle in ${\cal H}_V$ has at least 3 vertices, so each vertex corresponding to a cycle of ${\cal H}_V$ will have at least 2 children each corresponding to distinct nodes of ${\cal H}_V$. This also shows that the number of cycles in ${\cal H}_V$ is at most half of the number of nodes in ${\cal H}_V$. Hence, the size of $T({\cal H}_V)$ is of the order of the number of nodes of ${\cal H}_V$. 
+
+% We know that if $\nu$ and $\mu$ are two nodes in the cactus, there exists a unique path of cycles and tree edges between them. It follows from the construction of $T({\cal H}_V)$ that the unique path between the vertices $v(\nu)$ and $v(\mu)$ captures the same path. Thus we state the following lemma.
+
+% {\color{blue}
+
+
+The cactus ${\cal H}_V$ can be stored in a tree-structure \cite{DBLP:journals/algorithmica/DinitzW98}, denoted by $T({\cal H}_V)$. The vertex set of $T({\cal H}_V)$ consists of all the cycles and the nodes of the cactus. For any node $\nu$ of the cactus ${\cal H}_V$, let $v(\nu)$ denote the corresponding vertex in $T({\cal H}_V)$. Likewise, for any cycle $\pi$ in the cactus, let $v(\pi)$ denote the corresponding vertex in $T({\cal H}_V)$. We now describe the edges of  $T({\cal H}_V)$. For a tree edge $(\nu_1,\nu_2) \in {\cal H}_V$ we add an edge between $v(\nu_1)$ and $v(\nu_2)$ as well.
+Let $\nu$ be any node of ${\cal H}_V$ and let there be $j$ cycles - $\pi_1,\ldots,\pi_j$ that pass through it. We add an edge between $v(\nu)$ and $v(\pi_i)$ for each $1\le i\le j$. Moreover, for each vertex $\nu(\pi)$ in $T{({\cal H}_V)}$ we store all its neighbours in the order in which they appear in the cycle $\pi$ in ${\cal H}_V$ to ensure that cycle information is retained. This completes the description of $T({\cal H}_V)$. 
+
+The fact that the graph structure $T({\cal H}_V)$ is a tree follows from the property that any two cycles in a cactus may have at most one vertex in common. It is a simple exercise to show that the size of $T({\cal H}_V)$ is of the order of the number of nodes of ${\cal H}_V$, which is 
+${\cal O}(n)$. 
+% The construction of $T({\cal H}_V)$ leads to the following lemma.
+% }
+% \begin{lemma}
+% Let $\nu,\mu$ be any two arbitrary nodes in the cactus 
+% ${\cal H}_V$. The unique path between $v(\nu)$ and $v(\mu)$ in $T({\cal H}_V)$ concisely captures all
+% paths between $\nu$ and $\mu$ in ${\cal H}_V$.
+% \label{lem:path-in-T(H_S)}
+% \end{lemma}
+% {\color{red} some clarification required in the above lemma.}  
+% Let $\nu$ and $\mu$ be any two nodes in skeleton ${\cal H}_S$. If they belong to the same cycle, say $c$, there are two paths between them on the cycle $c$ itself - their union forms the cycle itself. Using the fact that any two cycles in  ${\cal H}_S$ can have at most one common node, it can be seen that these are the only paths between $\nu$ and $\mu$. Using the same fact, if $\nu$ and $\mu$ belong to different cycles, there exists a unique sequence of alternating cycles and nodes $\langle \nu_1,c_1,\ldots,\nu_r,c_r,\nu_{r+1}\rangle $ satisfying the following 2 properties. \begin{itemize}
+%     \item $\nu_1=\nu$, $\nu_{r+1}=\mu$, and for each $1< i\le r$, $\nu_i$ is the unique node common to $c_{i-1}$ and $c_i$.
+%     \item Each path between $\nu$ and $\mu$ can be seen as a sequence $\langle p_1,\ldots p_r\rangle$ such that $p_i$ is a path between $\nu_i$ and $\nu_{i+1}$ on cycle $c_{i}$.
+% \end{itemize}
+% It follows from the construction of $T({\cal H}_S)$ that $\langle v(\nu_1),v(c_1),\ldots,v(\nu_r),v(c_r),v(\nu_{r+1})\rangle$ is the path between $v(\nu)$
+% and $v(\mu)$. 
+% Thus we can state the following lemma.
+% \begin{lemma}
+% Let $\nu,\mu$ be any two arbitrary nodes in the cactus 
+% ${\cal H}_S$. The unique path between $v(\nu)$ and $v(\mu)$ in $T({\cal H}_S)$ concisely captures all
+% paths between $\nu$ and $\mu$ in ${\cal H}_S$.
+% \label{lem:path-in-T(H_S)}
+% \end{lemma}
+
+We root the tree $T({\cal H}_V)$ at any arbitrary vertex and augment it suitably so that it can answer any LCA query in $\mathcal O(1)$ time (using \cite{DBLP:journals/jal/BenderFPSS05}). Henceforth, we use \textit{skeleton tree} for this structure.
+
+\paragraph{Extendability of Proper Paths}
+A \textit{proper path} in a cactus refers to a path which contains at most one structural edge from a cycle. It is easy to observe that there is at most one proper path between a pair of nodes in the cactus. We describe a transitive relation between proper paths on skeleton called \textit{extendable in a direction}.
+
+
+% {\color{red} extendable in direction $\nu_2$ looks a bit. Try to redefine only in terms of projection mapping paths.}
+% \subsubsection{Extendable in a direction}
+\begin{definition}[Extendable in a direction]
+\label{def:extendable-in-a-direction}
+% Suppose $u$ and $v$ are two stretched units projected to proper paths $P(\nu_1,\nu_2)$ and $P(\nu_3,\nu_4)$ respectively. $v$ is said to be extendable in direction $\nu_2$ of $u$ if proper paths $P(\nu_1,\nu_2)$ and $P(\nu_3,\nu_4)$ are extendable to a proper path $P(\nu,\nu')$ with $P(\nu_1,\nu_2)$ as the initial part and $P(\nu_3,\nu_4)$ as the final part.
+Consider two proper paths $P_1 = P(\nu_1,\nu_2)$ and $P_2 = P(\nu_3,\nu_4)$. $P_2$ is said to be extendable from $P_1$ in direction $\nu_2$ if proper paths $P_1$ and $P_2$ are extendable to a proper path $P(\nu,\nu')$ with $P_1$ as the initial part and $P_2$ as the final part.
+\label{def:extendable}
+\end{definition}
+
+% It follows from Theorem \ref{lem:path-extendable} that if the stretched unit $v$ is reachable from $u$ in the direction $\nu_2$ through a coherent path, then $v$ is extendable in direction $\nu_2$ from $u$.
+
+\begin{lemma}
+\label{lem:skeleton-tree-queries}
+Given two paths $P_1 = P(\nu_1,\nu_2)$ and $P_2 = P(\nu_3,\nu_4)$ in cactus ${\cal H}_V$, the following queries can be answered using skeleton tree ${T}({\cal H}_V)$ using ${\cal O}(1)$ LCA queries.\\
+1. Determine if $P_1$ intersects $P_2$ at a tree edge or cycle, and report the intersection (if exists).\\
+2. Determine if $P_2$ is extendable from $P_1$ in direction $\nu_2$ (given that $P_1,P_2$ are proper paths), and report the extended path (if exists).
+\end{lemma}
+% It is interesting to note that verifying if $P(\nu_3,\nu_4)$ is extendable from $P(\nu_1,\nu_2)$ in direction $\nu_2$ can be done in ${\cal O}(1)$ LCA queries on the skeleton tree.
+
+
+\subsection{Compact representation for all Steiner mincuts} \label{subsec:connectivity-carcass}
+
+% Let $G=(V,E)$ be an undirected unweighted graph and $S\subseteq V$ be a subset (Steiner set) of its vertices. 
+Dinitz and Vainshtein \cite{DBLP:conf/stoc/DinitzV94} designed a data structure $\mathfrak{C}_S = ({\cal F}_S,{\cal H}_S, \pi_S)$ that stores all the Steiner mincuts (or $S$-mincuts) for a Steiner set $S\subseteq V$ in the graph. 
+% We present a summary of this data structure.
+% This data structure can be seen as a generalization of two already discussed data structures,
+This data structure generalizes --
+~(i) strip ${\cal D}_{s,t}$ storing all $(s,t)$-mincuts, and
+~(ii) cactus graph ${\cal H}_V$ storing all global mincuts.
+
+Two $S$-mincuts are said to be equivalent if they divide the Steiner set $S$ in the same way. The equivalence classes thus formed are known as the \textit{bunches}. Similarly, two vertices are said to be equivalent if they are not separated by any Steiner mincut. The equivalence classes thus formed are known as \textit{units}. A unit is called a \textit{Steiner unit} if it contains at least a Steiner vertex.
+
+Let $(S_B,{\bar S_B})$ be the $2-$partition of Steiner set induced by a bunch $\cal B$. If we compress all vertices in $S_B$ to $s$ and all vertices in ${\bar S_B}$ to $t$, ${\cal D}_{s,t}$ will store all cuts in ${\cal B}$. We shall denote this strip by ${\cal D}_{\cal B}$. Any such strip has the following property -- if two non-terminals of two strips intersect at even one vertex then these nodes along with the inherent partitions coincide.
+
+The first component of ${\mathfrak C}_S$, \textit{flesh graph} ${\cal F}_S$, is a generalization of the strip. It is a quotient graph of $G$. The vertices of ${\cal F}_S$, denoted by {\em units}, can be obtained by contracting each unit of $G$ to a single vertex. In addition to it, each unit of ${\cal F}_S$ is assigned a $2-$partition known as the \textit{inherent partition} on the set of edges incident on it. Any unit that appears as a non-terminal in the strip corresponding to some bunch is called a \textit{stretched unit}. Otherwise, it is called a \textit{terminal unit}. 
+% Another distinction between these two units follows from the two observations made on strip corresponding to a bunch mentioned above. 
+The inherent partition assigned to a stretched unit consists of two sets of equal cardinality. On the other hand, inherent partition assigned to a terminal unit is a trivial partition (one of the set is empty). Note that all Steiner units are terminal units but the reverse is not true.
+% The concept of reachability is slightly modified in ${\cal F}_S$. Whenever we say that a unit $u$ is reachable from unit $u'$, it means that there exists a coherent path between $u$ and $u'$. A \textit{coherent path} refers to a sequence of units and edges in flesh $(u_1,e_1,u_2,e_2,\ldots,u_k)$ such that any $e_i$ is incident on $u_{i-1}$ and $u_i$ and for any $u_i$ $e_{i-1}$ and $e_i$ lie in different side of the inherent partition. The structure of the flesh graph implies that it is not possible for a coherent path to start and finish at a single unit and hence, ${\cal F}_S$ is in a sense acyclic. A \textit{transversal} refers to a $2-$partition of units such that any coherent path intersects it at most once. It can be shown that each transversal in the flesh ${\cal F}_S$ corresponds to a Steiner mincut.
+The concept of reachability in ${\cal F}_S$ is similar to the strip. A unit $u$ is said to be reachable from unit $u'$ if there exists a coherent path between $u$ and $u'$. The structure of ${\cal F}_S$ is such that a coherent path cannot start and finish at same unit and hence, ${\cal F}_S$ is in a sense acyclic. There is a one-to-one correspondence between transversals in ${\cal F}_S$ and $S$-mincuts in $G$.
+
+The second component of ${\mathfrak C}_S$, {\em skeleton} ${\cal H}_S$, is a cactus graph. 
+% To avoid confusion with the original graph, the vertices and edges of the skeleton will be referred to as nodes and structural edges respectively. 
+% A structural edge in the skeleton is a tree-edge if it is not part of a cycle, otherwise, it is a cycle-edge. 
+% If $c_S$ is the value of the Steiner mincut, then each tree-edge is assigned weight $c_S$ and each cycle-edge is assigned weight $\frac{c_S}{2}$. 
+Each terminal unit of ${\cal F}_S$ is mapped to a node in the ${\cal H}_S$ by projection mapping ${\pi}_S$. A stretched unit on the other hand is mapped to a set of edges corresponding to a proper path in ${\cal H}_S$ by ${\pi}_S$. 
+% A \textit{proper path} in the skeleton refers to an alternating sequence of nodes and structural edges $(\nu_1,\epsilon_1,\nu_2,...,\nu_k)$ such that $\epsilon_i$ is incident on $\nu_{i-1}$ and $\nu_i$ and it intersects each cycle of the skeleton at at most one structural edge. 
+% A \textit{subbunch} is a subset of a bunch that can be represented by a strip. 
+All the bunches can be stored in ${\cal H}_S$ in the form of subbunches (disjoint subsets of a bunch). Each cut in ${\cal H}_S$ corresponds to a subbunch. The strip ${\cal D}_{\cal B}$ corresponding to this subbunch $\cal B$ can be obtained as follows. Let the cut in the skeleton separates it into two subcactuses ${\cal H}_S(\cal B)$ and ${\bar {\cal H}_S(\cal B)}$. If $P(\nu_1,\nu_2)$ be the path in the skeleton to which a unit $u$ is mapped, it will be placed in ${\cal D}_{\cal B}$ as follows.\\
+
+\noindent
+1. If both $\nu_1$ and $\nu_2$ lie in ${\cal H}_S(\cal B)$ (or ${\bar {\cal H}_S(\cal B)}$) $u$ is contracted in source (or sink).\\
+2. Otherwise, $u$ is kept as a non-terminal unit.\\
+
+Following lemma conveys the relation between reachability of a stretched unit $u$ and $\pi_S(u)$.
+
+\begin{lemma}[\cite{DBLP:conf/soda/DinitzV95}]
+Let $u$ be a stretched unit and $u'$ be any arbitrary unit in the flesh ${\cal F}_S$ and $\pi_S(u) = P(\nu_1,\nu_2)$, $\pi_S(u') = P(\nu_3,\nu_4)$. If $u'$ is reachable from $u$ in direction $\nu_2$, then $P(\nu_3,\nu_4)$ is extendable from $P(\nu_1,\nu_2)$ in direction $\nu_2$. (see Definition \ref{def:extendable-in-a-direction})
+\label{lem:path-extendable}
+\end{lemma}
+
+\begin{lemma}[\cite{DBLP:conf/stoc/DinitzV94}]
+\label{lem:strip-from-carcass}
+Let $s,t \in S$ such that $c_{s,t}=c_S$. Given the connectivity carcass ${\mathfrak C}_S$ storing all Steiner mincuts, the strip ${\cal D}_{s,t}$ can be constructed in time linear in the size of flesh graph.
+\end{lemma}
+
+% It is important to note that nearest $s$ to $t$ and $t$ to $s$ mincuts are easier to identify in the connectivity carcass. The following lemma conveys the fact.
+
+% \begin{lemma}[\cite{DBLP:conf/stoc/DinitzV94}]
+% \label{lem:u-nearest-s-t-mincut}
+% Let $s,t \in S$ such that $c_{s,t}=c_S$. Determining if a unit $u$ lies in nearest $s$ to $t$ mincut (or vice-versa) can be done using skeleton ${\cal H}_S$ and projection mapping $\pi_S$ using ${\cal O}(1)$ LCA queries on skeleton tree.
+% \end{lemma}
+
+
+% The size of flesh ${\cal F}_S$ is ${\cal O}(\min(m,\tilde{n}c_S))$ where $\tilde{n}$ is the number of units in ${\cal F}_S$. The size taken by skeleton is linear in the number of Steiner units. Thus, overall space taken by the connectivity carcass is ${\cal O}(\min(m,\tilde{n}c_S))$.
+The notion of projection mapping can be extended for an edge $(x,y) \in E$ as follows. If $x$ and $y$ belong to the same unit, then $P(x,y) = \varnothing$. If $x$ and $y$ belong to distinct terminal units mapped to nodes, say $\nu_1$ and $\nu_2$, in the skeleton ${\cal H}_S$, then $P(x,y) = P(\nu_1,\nu_2)$. If at least one of them belongs to a stretched unit, $P(x,y)$ is the extended path defined in Lemma \ref{lem:path-extendable}. Projection mapping of $(x,y)$ can be computed in ${\cal O}(1)$ time (using Lemma \ref{lem:skeleton-tree-queries}). The following lemma establishes a relation between projection mapping of an edge and the subbunches in which it appears.
+
+\begin{lemma}[\cite{DBLP:conf/stoc/DinitzV94}]
+Edge $(x,y)\in E$ appears in the strip corresponding to a subbunch if and only if one of the structural edge in the cut of ${\cal H}_S$ corresponding to this subbunch lies in $P(x,y)$.
+\label{lem:edge-path-intersect-subbunch}
+\end{lemma}
+
+
+\subsection{Compact representation of all-pairs mincuts values} \label{subsec:all-pairs-mincuts-values}
+
+We describe a hierarchical tree structure of Katz, Katz, Korman and Peleg \cite{DBLP:journals/siamcomp/KatzKKP04}
+that was used for compact labeling scheme for all-pairs mincuts, denoted by ${\cal T}_G$. The key insight on which this tree is built is an equivalence relation defined for a Steiner set $S\subseteq V$ as follows.
+
+
+\begin{definition}[Relation ${\cal R}_S$]
+Any two vertices $u,v\in S$ are said to be related by ${\cal R}_S$, that is $(u,v)\in {\cal R}_S$, if
+$c_{u,v}>c_S$, where $c_S$ is the value of a Steiner mincut of $S$.
+\end{definition}
+
+% \noindent
+% The fact that ${\cal R}_S$ is an equivalence relation defined over $S$ can be easily derived using Lemma \ref{lem:triangle-inequality}.
+% It can be observed that for any vertex $x\in S$, the equivalence class $[x]$ defined by ${\cal R}_S$ consists of all those vertices $y\in S$ such that the value of $(x,y)$-mincut is strictly greater than $c_S$. 
+
+
+By using ${\cal R}_S$ for various carefully chosen instances of $S$, we can build the tree structure ${\cal T}_G$ in a top-down manner as follows. Each node $\nu$ of the tree will be associated with a Steiner set, denoted by $S(\nu)$, and the equivalence relation ${\cal R}_{S(\nu)}$. To begin with, for the root node $r$, we associate $S(r)=V$.
+Using ${\cal  R}_{S(\nu)}$, we partition $S(\nu)$ into equivalence classes. For each equivalence class, we create a unique child node of $\nu$; the Steiner set associated with this child will be the corresponding equivalence class. We process the children of $\nu$ recursively along the same lines. We stop when the corresponding Steiner set is a single vertex. 
+
+It follows from the construction described above that the tree ${\cal T}_G$ will have $n$ leaves - each corresponding to a vertex of $G$. The size of ${\cal T}_G$ will be ${\cal O}(n)$ since each internal node has at least 2 children. Notice that $S(\nu)$ is the set of vertices present at the leaf nodes of the subtree of ${\cal T}_G$ rooted at $\nu$. The following observation captures the relationship between a parent and child node in 
+${\cal T}_G$.
+
+\begin{observation}
+\label{obs:maximal-subset-subtree}
+Suppose $\nu \in {\cal T}_G$ and $\mu$ is its parent. $S(\nu)$ comprises of a maximal subset of vertices in $S(\mu)$ with connectivity strictly greater than that of $S(\mu)$.
+\end{observation}
+
+The following observation allows us to use ${\cal T}_G$ for looking up $(s,t)$-mincut values for any $s,t\in V$.
+
+\begin{observation}
+\label{obs:(s,t)-mincut-lca}
+Suppose $s,t \in V$ are two vertices and $\mu$ is their LCA in ${\cal T}_G$ then $c_{s,t}=c_{S(\mu)}$.
+\end{observation}
+
+
+\section{\texorpdfstring{${\cal O}(n^2)$}{Quadratic} space sensitivity oracle for all-pairs mincuts} \label{sec:n^2-space-sensitivity-oracle}
+
+
+% {
+% \color{blue}
+
+% \begin{itemize}
+% \item Edge-containment query for fixed s,t.
+% \item Mincut containing $(x,y)$ using $(s,t)$-mincut for fixed $s,t$.
+% \begin{itemize}
+%     \item $O(m)$ space $O(m)$ time.
+%     \item Augmented topological numbers.
+%     \item $O(n)$ space $O(n)$ time.
+% \end{itemize}
+
+% \item Edge-containment query for $s,t \in S$ and $c_{s,t}=c_S$.
+% \item Generalize $O(n)$ space $O(1)$ time.
+% \item Mincut containing $(x,y)$ using $(s,t)$-mincut for $s,t \in S$ and $c_{s,t} = c_S$.
+% \begin{itemize}
+%     \item Idea of augmentation.
+%     \item Given a stretched unit u and a bunch. Report the set of all stretched units that precede them in some topological ordering.
+%     \item $O(n)$ space $O(n)$ time.
+% \end{itemize}
+% \end{itemize}
+% }
+
+% {\color{red} Describe 3.1 and highlight how it shall be useful in all-pairs case.}
+
+% \boxed{
+% $\tau$, $P$, $\pi$
+% }
+In this section, we shall present data structures that can handle edge-containment query for -- $(i)$ fixed source and destination pair $s,t\in V$ (in Section \ref{subsec:fixed-s-t}) and $(ii)$ for $s,t\in S$ and $c_{s,t}=c_S$ (in Section \ref{subsec:edge-containment-ds-steiner}). In Section \ref{subsec:all-pairs-mincuts}, we augment the tree structure of Katz, Katz, Korman and Peleg \cite{DBLP:journals/siamcomp/KatzKKP04} to get a sensitivity oracle for all-pairs mincuts. 
+
+\subsection{Edge-containment query for fixed \texorpdfstring{$s,t \in V$}{s,t in V}} \label{subsec:fixed-s-t}
+
+
+% Consider the problem of identifying if a given edge $(x,y)$ lies in a $(s,t)$-mincut for a designated pair of vertices $s,t \in V$. It is quite evident that an edge $(x,y)$ lies in a $(s,t)$-mincut if $x$ and $y$ are mapped to different nodes in the strip ${\cal D}_{s,t}$. This query can be reported in ${\cal O}(1)$ time by storing the node mapping of each vertex in ${\cal O}(n)$ space. {\color{red} Add reference}
+
+% Reporting a $(s,t)$-mincut that contains edge $(x,y)$ requires more insights. Without loss in generality, assume that edge $(x,y)$ lies in side-$\mathbf t$ of $\mathbf x$. If $\mathbf x$ is the same as $\mathbf s$, the set of vertices mapped to node $\mathbf s$ define a $(s,t)$-mincut that contains $(x,y)$. Thus, assume that $\mathbf x$ is a non-terminal in the strip ${\cal D}_{s,t}$. It is important to observe that set of vertices mapped to nodes in the reachability cone of $\mathbf x$ towards $\mathbf s$, ${\cal R}_s({\mathbf x})$, defines a $(s,t)$-mincut that contains edge $(x,y)$. However, reporting this mincut requires ${\cal O}(m)$ time and ${\cal O}(m)$ space. 
+% % Assuming Conjecture \ref{conj:directed-reachability-hypothesis} holds, any improvement in query time would require ${\Omega}(n^2)$ space. 
+% {\color{blue} check repitition}
+
+% To achieve better space and query time, we report another $(s,t)$-mincut that contains $(x,y)$ and has a simpler structure. Suppose $\tau$ is a topological ordering on the node set of strip ${\cal D}_{s,t}$ with $\tau(\mathbf s) = 0$. We show that storing the node mapping of each vertex and topological number of each node $\tau$ of the strip ${\cal D}_{s,t}$ can be used to report a $(s,t)$-mincut efficiently. 
+% % Consider the set of nodes, $X = \{u \;|\; \tau(u) \leq \tau(\mathbf x)\}$, with topological numbers less than or equal to that of $\mathbf x$. The set of vertices mapped to nodes in $X$ defines one such $(s,t)$-mincut. 
+% This data structure takes only ${\cal O}(n)$ space and can report a $(s,t)$-mincut containing edge $(x,y)$ in ${\cal O}(n)$ time. We state the following lemma.
+
+Consider  any edge $(x,y)\in E$. It follows from the construction of strip  ${\cal D}_{s,t}$ that edge $(x,y)$ lies in a $(s,t)$-mincut if and only if $x$ and $y$ are mapped to different nodes in ${\cal D}_{s,t}$. This query can be answered in ${\cal O}(1)$ time if we store the mapping from $V$ to nodes of ${\cal D}_{s,t}$. This requires only ${\cal O}(n)$ space.
+
+Reporting a $(s,t)$-mincut that contains edge $(x,y)$ requires more insights. Without loss of generality, assume that $(x,y)$ lies in side-$\mathbf t$ of $\mathbf x$. If $\mathbf x$ is the same as $\mathbf s$, the set of vertices mapped to node $\mathbf s$ define a $(s,t)$-mincut that contains $(x,y)$. Thus, assume that $\mathbf x$ is a non-terminal in the strip ${\cal D}_{s,t}$. Observe that the set of vertices mapped to the nodes in the reachability cone of $\mathbf x$ towards $\mathbf s$, ${\cal R}_s({\mathbf x})$, defines a $(s,t)$-mincut that contains edge $(x,y)$. Unfortunately, reporting this mincut requires ${\cal O}(m)$ time and ${\cal O}(m)$ space. However, exploiting the acyclic structure of the strip and the transversality of each $(s,t)$-mincut, we get an important insight stated in the following lemma. This lemma immediately leads to an ${\cal O}(n)$ size data structure that can report a $(s,t)$-mincut containing edge $(x,y)$ in ${\cal O}(n)$ time. (Proof in Appendix \ref{appendix:s-t-mincut-containing-x-y-topological-fixed}).
+% that leads to an ${\cal O}(n)$ size data structure that can also report the $(s,t)$-mincut in ${\cal O}To achieve better space and query time, we report another $(s,t)$-mincut that contains $(x,y)$ and has a simpler structure. Suppose $\tau$ is a topological ordering on the node set of strip ${\cal D}_{s,t}$ with $\tau(\mathbf s) = 0$. We show that storing the node mapping of each vertex and topological number of each node $\tau$ of the strip ${\cal D}_{s,t}$ can be used to report a $(s,t)$-mincut efficiently. 
+% Consider the set of nodes, $X = \{u \;|\; \tau(u) \leq \tau(\mathbf x)\}$, with topological numbers less than or equal to that of $\mathbf x$. The set of vertices mapped to nodes in $X$ defines one such $(s,t)$-mincut. 
+
+\begin{lemma}
+\label{lem:s-t-mincut-containing-x-y-topological-fixed}
+Consider the strip ${\cal D}_{s,t}$ with ${\mathbf x}$ as a non-terminal and edge $(x,y)$ lying on side-${\mathbf t}$ of ${\mathbf x}$. Suppose $\tau$ is a topological order on the nodes in the strip. The set of vertices mapped to the nodes in set $X = \{u \;|\; \tau(u) \leq \tau(\mathbf x)\}$ defines a $(s,t)$-mincut that contains edge $(x,y)$.
+\end{lemma}
+% \begin{proof}
+% Consider $u \in X$ to be a non-terminal in strip ${\cal D}_{s,t}$. We shall show that ${\cal R}_s(u) \setminus \mathbf{s} \subseteq X$, i.e. reachability cone of $u$ towards source ${\mathbf s}$ in the strip ${\cal D}_{s,t}$ avoiding $\mathbf s$ is a subset of $X$. Consider any non-terminal $v \in {\cal R}_s(u) \setminus \mathbf{s}$. Since $u$ is reachable from $v$ in direction $\mathbf t$, therefore $\tau(v) < \tau(u)$. Therefore, $v \in X$. Therefore, ${\mathbf s} \cup X$ defines a transversal in the strip ${\cal D}_{s,t}$ (from Lemma \ref{lem:mincut-transversal}) and thus defines a $(s,t)$-mincut. The fact that $(x,y)$ lies in this $(s,t)$-mincut follows from the fact that $\tau(y) > \tau(x)$ and thus, $y \not \in X$.
+% \end{proof}
+
+
+
+\subsection{Edge-containment query for Steiner set \texorpdfstring{$S$}{S}} \label{subsec:edge-containment-ds-steiner}
+
+Suppose $S$ is a designated Steiner set and $s,t\in S$ are Steiner vertices separated by some Steiner mincut. It follows from Lemma \ref{lem:s-t-mincut-containing-x-y-topological-fixed} that we can determine if an edge $(x,y)\in E$ belongs to some $(s,t)$-mincut using the strip ${\cal D}_{s,t}$. Though this strip can be built from the connectivity carcass
+$\mathfrak{C}_S$, the time to construction it will be ${\cal O}(\min(m,nc_S))$. Interestingly, we show that only the skeleton and the projection mapping of $\mathfrak{C}_S$ are sufficient for answering this query in constant time. Moreover, the skeleton and the projection mapping occupy only ${\cal O}(n)$ space compared to the ${\cal O}(\min(m,nc_S))$ space occupied by $\mathfrak{C}_S$.
+
+The data structure $\mathfrak{D}(S)$ for edge containment query consists of the following components.
+\begin{enumerate}
+\item The skeleton tree $T({\cal H}_S)$. 
+\item The projection mapping ${\pi}_S$ of all units in flesh.
+\end{enumerate}
+
+% In the following lemma, we show that this data structure can be used to efficiently report the edge-containment query for a Steiner Set $S$. 
+
+% We state the necessary and sufficient condition for an edge $(x,y)$ to lie in an $(s,t)$-mincut. Note that two paths are said to intersect in the skeleton if the unique path of cycle and tree edges in both the paths intersect at some cycle or tree edge.\\
+
+% {\color{red} 
+% 1. There is some ambiguity here : skeleton versus skeleton tree.\\ 2. Moreover our contribution which is the following lemma is not in black and white.\\
+% 3. Is the proof needed to be placed here ? Nontriviality of the proof ?}
+
+% The skeleton ${\cal H}_{S(\nu)}$ and the corresponding projection mapping $\pi_{S(\nu)}$ have the sufficient information to infer whether any edge $(x,y)\in E$ belongs to some $(s,t)$-mincut as stated by the following lemma. We say that two paths intersect if the unique path of cycle and tree edges in both the paths intersect at some cycle or tree edge.
+\begin{lemma}
+\label{lem:path-intersects-tree}
+% Given an undirected unweighted multigraph $G=(V,E)$ on $n=|V|$ vertices and a designated steiner set $S\subseteq V$. There exists an ${\cal O}(n)$ size data structure that can report if an edge $(x,y)$ lies in some $(s,t)$-mincut in ${\cal O}(1)$ time for given $s,t \in S$, $c_{s,t}=c_S$ and $(x,y)\in E$.
+Given an undirected unweighted multigraph $G=(V,E)$ on $n=|V|$ vertices and a designated steiner set $S\subseteq V$, $\mathfrak{D}(S)$ takes ${\cal O}(n)$ space and can report if an edge $(x,y)$ lies in some $(s,t)$-mincut in ${\cal O}(1)$ time for any given $s,t \in S$ separated by some Steiner mincut.
+\end{lemma}
+\begin{proof}
+We shall first show that an edge $(x,y)\in E$ belongs to a $(s,t)$-mincut if and only if the proper path $P(x,y)$ intersects a path between the nodes containing $s$ and $t$ in $\mathcal H_{S}$. We say that two paths {\em intersect} if they intersect at a tree edge or cycle.
+% {\color{blue} make it short.}
+
+% Observe that an edge $(x,y)$ lies in a $(s,t)$-mincut if and only if it appears in the strip ${\cal D}_{s,t}$ (follows from Lemma \ref{lem:E_y-edges-same-side}). Infact, we can extend this notion for subbunch as well. The edge $(x,y)$ lies in some $(s,t)$-mincut if and only if it appears in the strip corresponding to some subbunch that separates $s$ from $t$.
+
+% Consider each subbunch that separates $s$ from $t$.
+Let $\nu_1$ and $\nu_2$ be the nodes in ${\cal H}_S$ containing $s$ and $t$ respectively. A cut in ${\cal H}_S$ corresponding to any tree-edge (or a pair of cycle edges in same cycle) in the path from $\nu_1$ to $\nu_2$ defines a subbunch separating $s$ from $t$. Moreover, it follows from the structure of the skeleton that no other cut in the skeleton corresponds to a subbunch separating $s$ from $t$. Suppose $(x,y)$ lies in some $(s,t)$-mincut. Thus, it must be in some subbunch ${\cal B}$ separating $s$ from $t$. ${\cal B}$ must correspond to a cut $\cal{C}$ in the path from $\nu_1$ to $\nu_2$ in skeleton ${\cal H}_S$. Also, $P(x,y)$ must contain (one of) the structural edge(s) defining $\cal{C}$ (from Lemma \ref{lem:edge-path-intersect-subbunch}). Thus, $P(x,y)$ intersects the path from $\nu_1$ to $\nu_2$ in skeleton ${\cal H}_S$.
+
+Now, consider the other direction of this proof. Suppose $P(x,y)$ and the path from $\nu_1$ to $\nu_2$ intersect at some cycle (or tree edge) $c$. Let $e_1$ and $e_2$ be structural edges belonging to the cycle $c$ that are part of $P(x,y)$ and the path from $\nu_1$ to $\nu_2$ respectively (in the case of tree edge $e_1=e_2=c$). Consider the cut in the skeleton corresponding to structural edges $e_1$ and $e_2$. It follows from Lemma \ref{lem:edge-path-intersect-subbunch} that $(x,y)$ lies in the strip corresponding to this subbunch. Since this cut separates $\nu_1$ from $\nu_2$ in ${\cal H}_S$, therefore the subbunch separates $s$ from $t$.
+
+We can check if paths $P(\nu_1,\nu_2)$ and $P(s,t)$ in the skeleton ${\cal H}_S$ intersect with ${\cal O}(1)$ LCA queries on skeleton tree ${\cal T}({\cal H}_S)$ (from Lemma \ref{lem:skeleton-tree-queries}). Thus, we can determine if an edge $(x,y)$ lies in an $(s,t)$-mincut in ${\cal O}(1)$ time. The data structure takes only ${\cal O}(n)$ space.
+\end{proof}
+
+% {\color{red} Why $D_{B}$ instead of $D_{s,t}$ helps?}
+
+Reporting a $(s,t)$-mincut that contains edge $(x,y)$ again requires more insights. Assume that $P(s,t)$ and $P(\nu_1,\nu_2)$ intersect at some tree edge or cycle. Let $e$ be a tree or cycle-edge in proper path $P(\nu_1,\nu_2)$ that lies in intersection of these two paths. Suppose ${\cal B}$ is a subbunch corresponding to a cut in the skeleton ${\cal H}_S$ that contains $e$ and separates $s$ from $t$ and ${\cal D}_{\cal B}$ be the strip corresponding to this subbunch. Without loss in generality, assume that $\nu_1$ lies in the side of source $s$ in this strip (denoted by ${\mathbf s}$). Using Lemma \ref{lem:edge-path-intersect-subbunch}, it is evident that edge $(x,y)$ lies in strip ${\cal D}_{\cal B}$. Assume $\mathbf x$ is a stretched unit in this strip, otherwise the source $\mathbf s$ is the required $(s,t)$-mincut. Suppose $(x,y)$ lies in side-$\mathbf t$ of $\mathbf x$. The set of vertices mapped to ${\cal R}_s(\mathbf{x})$, i.e. reachability cone of $\mathbf x$ towards $\mathbf s$ in this strip, defines a $(s,t)$-mincut that contains edge $(x,y)$. However, reporting this mincut is a tedious task. We must have the flesh ${\cal F}_S$ to construct the strip ${\cal D}_{\cal B}$ and then report the set ${\cal R}_s(\mathbf{x})$. This would require ${\cal O}(m)$ space and ${\cal O}(m)$ time.
+
+% {\color{red} TODO: Go through this and the following paragraph again.}
+
+% It is important to observe that the difficulty we face here looks more challenging compared to the one highlighted in Section \ref{subsec:fixed-s-t}. To achieve better space and query time, we use similar ideas as used in Section \ref{subsec:fixed-s-t}. 
+
+Using insights developed in Section \ref{subsec:fixed-s-t}, we strive to report another $(s,t)$-mincut that contains $(x,y)$ and has a simpler structure. In particular, we aim to report a set of units $Y = \{ u \;|\; \tau_{\cal B}(u)\leq \tau_{\cal B}(\mathbf{x})\}$ for some topological ordering $\tau_{\cal B}$ of nodes in strip ${\cal D}_{\cal B}$. Using Lemma \ref{lem:s-t-mincut-containing-x-y-topological-fixed}, we know that set of vertices mapped to nodes in set $Y$ defines a $(s,t)$-mincut that contains edge $(x,y)$. Unfortunately, we cannot store topological order of each stretched unit for each possible bunch in which it appear as a non-terminal. This is because doing so will require ${\cal O}(n.|S|^2)$ space. We show that we can augment ${\mathfrak D}(S)$ with an additional mapping $\tau$ that takes only ${\cal O}(n)$ space and can still efficiently report the set $Y$. $\tau$ maps each stretched unit in ${\mathfrak D}(S)$ to a number as follows.
+For all stretched units mapped to path $P(\nu_1,\nu_2)$, $\tau$ assigns a topological order on these stretched units as they appear in the $(\nu_1,\nu_2)$-strip. This additional augmentation will help us determine all those units of $Y$ which are mapped to same proper path as $\mathbf{x}$. The challenge now is to identify the units of $Y$ that are not mapped to the same path as $\mathbf{x}$. We use the notion of extendability of proper paths (Definition \ref{def:extendable-in-a-direction}) to find such units.
+
+
+% In order to make the ideas more simple, we describe a transitive relation between proper paths on skeleton called \textit{extendable in a direction}.
+
+
+% {\color{red} extendable in direction $\nu_2$ looks a bit. Try to redefine only in terms of projection mapping paths.}
+% \subsubsection{Extendable in a direction}
+% \begin{definition}[Extendable in a direction]
+% % Suppose $u$ and $v$ are two stretched units projected to proper paths $P(\nu_1,\nu_2)$ and $P(\nu_3,\nu_4)$ respectively. $v$ is said to be extendable in direction $\nu_2$ of $u$ if proper paths $P(\nu_1,\nu_2)$ and $P(\nu_3,\nu_4)$ are extendable to a proper path $P(\nu,\nu')$ with $P(\nu_1,\nu_2)$ as the initial part and $P(\nu_3,\nu_4)$ as the final part.
+% Consider two proper paths $P_1 = P(\nu_1,\nu_2)$ and $P_2 = P(\nu_3,\nu_4)$. $P_2$ is said to be extendable from $P_1$ in direction $\nu_2$ if proper paths $P_1$ and $P_2$ are extendable to a proper path $P(\nu,\nu')$ with $P_1$ as the initial part and $P_2$ as the final part.
+% \label{def:extendable}
+% \end{definition}
+
+% It follows from Theorem \ref{lem:path-extendable} that if the stretched unit $v$ is reachable from $u$ in the direction $\nu_2$ through a coherent path, then $v$ is extendable in direction $\nu_2$ from $u$.
+% Moreover, verifying if $P(\nu_3,\nu_4)$ is extendable from $P(\nu_1,\nu_2)$ in direction $\nu_2$ can be done in ${\cal O}(1)$ LCA queries on the skeleton tree. {\color{red} Add reference.}
+
+
+Suppose stretched unit $\mathbf x$ is mapped to path $P(\nu,\nu')$ ($\nu$ lies in source $\mathbf{s}$). Let $X$ be the set of stretched units appearing as non-terminals in strip ${\cal D}_{\cal B}$ for which one of the following holds true -- (i) the stretched unit (say $v$) is mapped to $P(\nu,\nu')$ and $\tau(v) \leq \tau(\mathbf x)$, or (ii) the stretched unit is not mapped to $P(\nu,\nu')$ but $\pi_S(v)$ is extendable from $P(\nu,\nu')$ in direction $\nu$. The following lemma shows that $\mathbf{s}\cup X$ defines a desired $(s,t)$-mincut.
+
+\begin{lemma}
+The vertices mapped to units in ${\mathbf s}\cup X$ define a $(s,t)$-mincut and contains $(x,y)$.
+\end{lemma}
+\begin{proof}
+% {\color{red} Fix this proof.}
+Consider $u \in X$ to be a non-terminal unit in ${\cal D}_{\cal B}$. We shall show that ${\cal R}_{\mathbf s}(u)\setminus \mathbf{s} \subseteq X$, i.e. reachability cone of $u$ towards source $\mathbf{s}$ in the strip ${\cal D}_{\cal B}$ avoiding $\mathbf s$ is a subset of $X$. Suppose $\pi_S(u)=P(\mu,\mu')$ where $\mu$ is in source $\mathbf{s}$. It follows from the construction that either $P(\mu,\mu') = P(\nu,\nu')$ or $P(\mu,\mu')$ is extendable in direction $\nu$ from $P(\nu,\nu')$. Consider any unit $v$ in ${\cal R}_{\mathbf s}(u)\setminus \mathbf{s}$.
+Suppose $v$ is projected to $P(\nu,\nu')$. In this case, clearly $P(\mu,\mu') = P(\nu,\nu')$ (using Lemma \ref{lem:path-extendable}). Since, $v$ is reachable from $u$ in direction $\nu$, it follows that $\tau(v) < \tau(u) < \tau(\mathbf{x})$. Thus, $v \in X$. Now, suppose $v$ is not projected to $P(\nu,\nu')$. In this case, $\pi_S(v)$ is extendable from $P(\mu,\mu')$ in direction $\mu$ (from Lemma \ref{lem:path-extendable}). It follows from the transitivity of Definition \ref{def:extendable} that $\pi_S(v)$ is extendable from $P(\nu,\nu')$ in direction $\nu$. Thus, $v \in X$. Therefore, ${\mathbf s}\cup X$ defines a $(s,t)$-mincut (from Lemma \ref{lem:mincut-transversal}).
+
+%{\color{blue} 
+%Let $u \in X$ be any non-terminal unit in ${\cal D}_{\cal B}$. We shall show that ${\cal R}_{\mathbf s}(u)\setminus \mathbf{s} \subseteq X$, i.e. reachability cone of $u$ towards source $\mathbf{s}$ in the strip ${\cal D}_{\cal B}$ avoiding $\mathbf s$ is a subset of $X$. This would imply using Lemma \ref{lem:mincut-transversal} that ${\mathbf s}\cup X$ defines a $(s,t)$-mincut. Notice that ${\mathbf s}$ belongs to the same direction as $\nu$ from $\nu'$.
+%
+%
+%It follows from the construction of $X$ that $u$ is either projected to $P(\nu,\nu')$ or $\pi_S(u)$ is extendable in direction $\nu$ from $P(\nu,\nu')$. 
+%
+%Let us consider the case when $u$ is projected to $\pi(\nu,\nu')$. 
+%Noti
+%Consider any unit $v$ in ${\cal R}_{\mathbf s}(u)\setminus \mathbf{s}$. Since, $v$ is reachable from $u$ in direction ${\mathbf s}$, it follows that $\tau(v) < \tau(u) < \tau(\mathbf{x})$. Thus, $v \in X$. 
+%
+%Let us consider the case when suppose $v$ is not projected to $P(\nu,\nu')$. Since $v$ is reachable from $u$ in the direction of $s$, $\pi_S(v)$ is extendable from $\pi_S(u)$ in the direction of $s$. 
+%It follows from the construction of $X$ this case, $\pi_S(v)$ is extendable from $P(\nu,\nu')$ in direction $\nu$ (from Theorem \ref{lem:path-extendable}). It follows from the transitivity of Definition \ref{def:extendable} that $\pi_S(v)$ is extendable from $\pi_S(u)$ in direction $\nu$. Thus, $v \in X$.
+%}
+
+Consider edge $(x,y)$. If $y$ is in $\mathbf t$ then $y \not \in X$ from the construction. Thus, assume $y$ is a non-terminal unit in ${\cal D}_{\cal B}$. If $y$ is projected to path $P(\nu,\nu')$ then $\tau(y) > \tau(u)$. Thus, $y \not \in X$. Otherwise $\pi_S(y)$ is extendable from $P(\nu,\nu')$ in direction $\nu'$. It follows from Definition \ref{def:extendable} that $y \not \in X$. Thus, the cut defined by ${\mathbf s} \cup X$ contains edge $(x,y)$.
+
+\end{proof}
+
+This data structure $\mathfrak{D}(S)$ now occupies ${\cal O}(n)$ space and can report a $(s,t)$-mincut containing edge $(x,y)$ in ${\cal O}(n)$ time. Using this data structure, we build a sensitivity oracle for all-pairs mincuts.
+
+
+\subsection{Edge-containment Query for all-pairs Mincuts}
+\label{subsec:all-pairs-mincuts}
+
+The hierarchical tree structure ${\cal T}_G$ \cite{DBLP:journals/siamcomp/KatzKKP04} can be suitably augmented to design a sensitivity oracle for all-pairs mincuts. We augment each internal node $\nu$ of the hierarchy tree ${\cal T}_G$ with ${\mathfrak D}(S(\nu))$. Determining if given edge $(x,y)$ lies in some $(s,t)$-mincut for given pair of vertices $s,t\in V$ can be done using Algorithm \ref{algo:quadratic-space-query} in constant time. 
+
+\begin{algorithm}%[H]
+    \caption{Single edge-containment queries in ${\cal O}(n^2)$ data structure}
+    \label{algo:quadratic-space-query}
+    \begin{algorithmic}[1] % The number tells where the line numbering should start
+        \Procedure{Edge-Contained}{$s,t,x,y$}
+            \State{${\mu}\gets$ LCA($\mathcal T_G,s,t$)}
+            \State $\mathcal P_1 \gets P(\pi_{S(\mu)}(s),\pi_{S(\mu)}(t))$
+            \State $\mathcal P_2 \gets P(x,y)$
+            \If{${\cal P}_1$ and ${\cal P}_2$ intersect at a tree edge or cycle} \Comment{ Using Lemma \ref{lem:skeleton-tree-queries}} 
+            \State \textbf{return} True
+            \Else 
+            \State \textbf{ return} False
+            \EndIf
+        \EndProcedure
+    \end{algorithmic}
+\end{algorithm}
+
+
+We state the following theorem (for edge-insertion see Appendix \ref{appendix: edge-insertion-n^2-space-ds}).
+
+\begin{theorem}
+Given an undirected unweighted multigraph $G=(V,E)$ on $n=|V|$ vertices, there exists an
+${\cal O}(n^2)$ size sensitivity oracle that can report the value of $(s,t)$-mincut for any $s,t \in V$ upon failure (or insertion) of an edge in ${\cal O}(1)$ time. Moreover, a $(s,t)$-mincut 
+%incorporating 
+after the failure (or insertion) 
+% of an edge 
+can be reported in ${\cal O}(n)$ time.
+\label{thm:O(n^2)-size-data-structure}
+\end{theorem}
+
+% We build our data structure using the findings of Lemma \ref{lem:path-intersects-tree}. We augment each internal node $\mu$ of the hierarchy tree ${\cal T}_G$ with the skeleton tree $T({\cal H}_{S(\mu)})$ and the projection mapping ${\pi}_{S(\mu)}$ corresponding to Steiner set $S(\mu)$. In addition to it, for each stretched unit $u$ mapped to path $P(\nu_1,\nu_2)$ in skeleton ${\cal H}_{S(\mu)}$ we also store a number ${\tau(u)}$ that denotes the topological order of $u$ as it appears in the $(\nu_1,\nu_2)$-strip.  This additional information will help us efficiently report the mincut upon failure of an edge. Since augmentation at each internal node takes ${\cal O}(n)$ space, therefore the total space occupied by the data structure is only ${\cal O}(n^2)$.
+
+
+% Consider any node $\nu$ in ${\cal T}_G$.
+% Let $s,t$ be any two vertices such that
+% $\nu$ is their LCA in ${\cal T}_G$. $s$ and $t$ must belong to different nodes in the the skeleton ${\cal H}_{S(\nu)}$ stored at $\nu$. 
+% It follows from Lemma \ref{lem:path-intersects-tree} that for a single-edge-containment query, we just have to keep the skeleton tree and the projection mapping at each internal node in ${\cal T}_G$. It is important to note that both these data structures collectively only take up ${\cal O}(n)$ space, contrary to the ${\cal O}(\min(m,nc_S)$ size taken up by the entire connectivity carcass. Thus, the size taken up by complete data structure is only ${\cal O}(n^2)$. 
+
+% \subsection{Edge-containment Query on Data Structure}
+% Determining whether a given edge belongs to a $(s,t)$-mincut can be done as follows. Let $\mu$ be the LCA of $s$ and $t$ in ${\cal T}_G$. It follows from Observation \ref{obs:(s,t)-mincut-lca} that $c_{s,t}=c_{S(\mu)}$. Thus, $s$ and $t$ must be separated by some Steiner mincut for set $S(\mu)$. We check if paths $P(x,y)$ and $P(\pi_{S(\mu)}(s),\pi_{S(\mu)}(t))$ intersect in the skeleton ${\cal H}_{S(\mu)}$ (using Lemma \ref{lem:path-intersects-tree}). This can be done using ${\cal O}(1)$ LCA queries on the skeleton tree $T({\cal H}_{S(\mu)})$. Since it takes ${\cal O}(1)$ time for answering one LCA query \cite{DBLP:journals/jal/BenderFPSS05}, so the query time will be only ${\cal O}(1)$. Algorithm \ref{algo:quadratic-space-query} presents a concise pseudocode of the query answering algorithm.
+
+
+
+
+% Now, we show how to report an $(s,t)$-mincut which contains the edge $(x,y)$ in ${\cal O}(n)$ time. 
+
+% In order to make the ideas more simple, we describe a transitive relation between stretched units called \textit{extendable in a direction}.
+
+% \begin{definition}[Extendable in a direction]
+% Suppose $u$ and $v$ are two stretched units projected to proper paths $P(\nu_1,\nu_2)$ and $P(\nu_3,\nu_4)$ respectively. $v$ is said to be extendable in direction $\nu_2$ of $u$ if proper paths $P(\nu_1,\nu_2)$ and $P(\nu_3,\nu_4)$ are extendable to a proper path $P(\nu,\nu')$ with $P(\nu_1,\nu_2)$ as the initial part and $P(\nu_3,\nu_4)$ as the final part.
+% % \label{def:extendable}
+% \end{definition}
+
+% It follows from Theorem \ref{lem:path-extendable} that if the stretched unit $v$ is reachable from $u$ in the direction $\nu_2$ through a coherent path, then $v$ is extendable in direction $\nu_2$ from $u$. Moreover, verifying if $v$ is extendable from $u$ in direction $\nu_2$ can be done in ${\cal O}(1)$ LCA queries on the skeleton tree.
+
+% Suppose $s,t \in S$ are steiner vertices such that $c_{s,t}=c_S$ and $u$ is a stretched unit mapped to path $P(\nu_1,\nu_2)$. Moreover, it is known that $P(s,t)$ and $P(\nu_1,\nu_2)$ intersect at some tree edge or cycle. Let $e$ be a tree or cycle-edge in proper path $P(\nu_1,\nu_2)$ that. Our task is to report a $(s,t)$-mincut that contains all the edges in one side of the inherent partition of $u$ (say side-$\nu_2$). Suppose ${\cal B}$ is a subbunch corresponding to a cut in the skeleton ${\cal H}_S$ that contains $e$ and separates $s$ from $t$. Without loss in generality, assume that $\nu_1$ lies in the side of $s$ in this cut (denoted by ${\mathbf s}$). It follows from the construction that $u$ is a non-terminal unit in the strip ${\cal D}_{\cal B}$. Assume that side of $s$ is the source in this strip. 
+
+% % To report a $(s,t)$-mincut containing all edges in side-$\nu_2$ of $u$, it suffices to report all non-terminal units in strip ${\cal D}_{\cal B}$ that precede $u$ in the topological ordering. It is important to note that multiple topological ordering may exist for this strip, but any one of them shall work in this case.
+
+% Consider the set $U$ formed by stretched units appearing as non-terminals in strip ${\cal D}_{\cal B}$ for which at one of the following holds true -- (i) the stretched unit (say $v$) is mapped to $P(\nu_1,\nu_2)$ and $\tau(v) \leq \tau(u)$, and (ii) the stretched unit is not mapped to $P(\nu_1,\nu_2)$ but is extendable from $u$ in direction $\nu_1$. We state the following lemma.
+
+% \begin{lemma}
+% The vertices mapped to units in ${\mathbf s}\cup U$ define a $(s,t)$-mincut that contains all the edges in side-${\nu}_2$ of the inherent partition of $u$.
+% \end{lemma}
+% \begin{proof}
+% Consider $x \in U$ to be a unit. We shall show that ${\cal R}_{\mathbf s}(x)\setminus \mathbf{s} \subseteq U$. It follows from the construction that $x$ is either projected to $P(\nu_1,\nu_2)$ or is extendable in direction $\nu_1$ from $x$. Consider any unit $y$ in ${\cal R}_{\mathbf s}(x)\setminus \mathbf{s}$. Suppose $x$ and $y$ are both projected to $P(\nu_1,\nu_2)$. Since, $y$ is reachable from $x$ in direction $\nu_1$, it follows that $\tau(y) < \tau(x) < \tau(u)$. Thus, $y \in U$. Now, suppose $y$ is not projected to $P(\nu_1,\nu_2)$. In this case, $y$ is extendable from $x$ in direction $\nu_1$ (from Theorem \ref{lem:path-extendable}). It follows from the transitivity of Definition \ref{def:extendable} that $y$ is extendable from $u$ in direction $\nu_1$. Thus, $y \in U$.
+
+% Now, we prove the second part of the lemma. Consider any edge $(u,w)$ in the side-$\nu_2$. If $w$ is in $\mathbf t$ then $w \not \in U$ from the construction. Assume that $w$ is a non-terminal unit in ${\cal D}_{\cal B}$. If $w$ is projected to path $P(\nu_1,\nu_2)$ then $\tau(w) > \tau(u)$. Thus, $w \not \in U$. Otherwise $w$ is extendable from $u$ in direction $\nu_2$. It follows from Definition \ref{def:extendable} that $w \not \in U$. Thus, the cut defined by ${\mathbf s} \cup U$ contains all edges in side-$\nu_2$ of the inherent partition of $u$.
+
+% \end{proof}
+
+% Now, consider the case when at least one of $x$ and $y$ belongs to a stretched unit. In this case, we can use the above ideas to report the $(s,t)$-mincut containing this edge. If both $x$ and $y$ belong to different terminal units, then simply reporting the terminal unit $\mathbf{s}$ of ${\cal D}_{\cal B}$ will suffice.
+
+
+% \subsection{Edge insertion Query on Data Structure}
+
+% Determining whether insertion of an edge $(x,y)$ increases the $(s,t)$-mincut is comparatively simpler. Again, let $\mu$ be the LCA of $s$ and $t$ in ${\cal T}_G$. For sake of simplicity, assume that $x,y,s$ and $t$  be units in flesh graphs corresponding to vertices $x,y,s$ and $t$ respectively. Using Lemma \ref{lem:edge-insertion-increases-mincut}, we only need to determine if $x \in s_t^N$ and $y \in t_s^N$ or vice-versa. Using Lemma \ref{lem:u-nearest-s-t-mincut}, we can perform this operation in ${\cal O}(1)$ time. Reporting $(s,t)$-mincut after insertion of an edge can be done in ${\cal O}(n)$ time (using Lemma \ref{lem:u-nearest-s-t-mincut}) as $s_t^N$ is one such mincut. Thus, we can summarize the results of previous two sections in the following theorem.
+
+
