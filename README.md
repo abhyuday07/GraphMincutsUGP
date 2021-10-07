@@ -5,9 +5,10 @@ This Undergraduate Project was completed in two parts at Indian Institute of Tec
 - CS498 (Semester 2020-21 I) : Fault-Tolerant All-Pairs Mincuts
 - CS396 (Sememster 2020-21 II) : Sensitivity Oracle for All-Pairs Mincuts, also includes Lower Bounds for Mincut Data Structures.
 
-## Part 1: Fault-Tolerant All-Pairs Mincuts
+A major part of the research will appear in ACM-SIAM Symposium on Discrete Algorithms (SODA) 2022.
+Link to Preprint - https://arxiv.org/pdf/2011.03291.pdf
 
-Link - https://arxiv.org/pdf/2011.03291.pdf
+## Part 1: Fault-Tolerant All-Pairs Mincuts
 
 Let G=(V,E) be an undirected unweighted graph on n vertices and m edges. We address the problem of fault-tolerant data structure for all-pairs mincuts in G defined as follows.
 
